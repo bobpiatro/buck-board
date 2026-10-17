@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d231a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Buck Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column of grouped buck cards (shooters first), tap a photo for a full-screen view */
+:root{
+  --bg:#f3f4ef; --surface:#ffffff; --fg:#1d221b; --muted:#5f6858; --line:#d9ddd1;
+  --accent:#e0601a; --shoot:#c4501a; --walk:#4f6b3a; --young:#7a8a6a; --unk:#7d7d7d;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Source Sans 3",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141812; --surface:#1d231a; --fg:#e7eadf; --muted:#9aa38f; --line:#2f382a;
+  --accent:#f07a35; --shoot:#f07a35; --walk:#8fb070; --young:#a3b192; --unk:#9a9a9a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141812; --surface:#1d231a; --fg:#e7eadf; --muted:#9aa38f; --line:#2f382a;
+  --accent:#f07a35; --shoot:#f07a35; --walk:#8fb070; --young:#a3b192; --unk:#9a9a9a; color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:760px;margin:0 auto;display:grid;gap:28px}
+header h1{font-family:var(--display);font-size:2.4rem;letter-spacing:.02em;text-transform:uppercase;margin:0;line-height:1}
+header p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{font-family:var(--mono);font-size:.72rem;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+section{display:grid;gap:12px}
+section h2{font-family:var(--display);font-size:1.35rem;text-transform:uppercase;letter-spacing:.06em;margin:0;
+  display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--c);padding-bottom:4px;color:var(--c)}
+section h2 small{font-family:var(--body);font-size:.85rem;letter-spacing:0;text-transform:none;color:var(--muted)}
+.cards{display:grid;gap:10px}
+.card{display:grid;grid-template-columns:112px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;align-items:start}
+.thumb{position:relative;padding:0;border:0;background:none;cursor:zoom-in;border-radius:4px;overflow:hidden;width:112px;aspect-ratio:1;max-width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .tag{position:absolute;left:0;top:0;background:var(--c);color:#fff;font-family:var(--display);font-size:1.3rem;font-weight:700;padding:0 8px;line-height:1.5}
+.thumb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.info{min-width:0;display:grid;gap:6px}
+.stats{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:2px 16px}
+.stats dt{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stats dd{margin:0;font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.repeat{font-size:.88rem}
+.repeat b{font-weight:600}
+.note{font-size:.88rem;color:var(--muted);margin:0}
+.stamp{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+footer{font-size:.85rem;color:var(--muted)}
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(10,12,9,.94);z-index:20;display:flex;flex-direction:column;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));color:#eef0e8}
+.lb-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lb-top h3{font-family:var(--display);font-size:1.6rem;margin:0;text-transform:uppercase}
+.lb button{background:#2a3125;color:#eef0e8;border:1px solid #4a5541;border-radius:4px;font:600 .95rem var(--body);padding:8px 14px;cursor:pointer}
+.lb button:focus-visible{outline:3px solid #f07a35}
+.lb-img{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;margin:10px 0;overflow:hidden;touch-action:none;cursor:zoom-in;position:relative}
+.lb-img.zoomed{cursor:grab}
+.lb-img.dragging{cursor:grabbing}
+.lb-img img{max-height:100%;max-width:100%;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.lb-img .hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font:500 .72rem var(--mono);background:rgba(0,0,0,.55);padding:3px 8px;border-radius:99px;pointer-events:none;white-space:nowrap}
+.lb-cap{font-size:.92rem;max-width:65ch;margin:0 auto}
+.lb.capoff .lb-cap{display:none}
+.lb-nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.lb-tools{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.lb-tools .zl{font:500 .85rem var(--mono);min-width:4.5ch;text-align:center;align-self:center;font-variant-numeric:tabular-nums}
+@media (max-width:420px){.card{grid-template-columns:92px 1fr}.thumb{width:92px}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Buck Board</h1>
+    <p>Trail cam reviews, grouped by age. Tap a photo to see the full shot. Shooter line is 3.5+.</p>
+    <div class="legend"><span class="chip">"your call" = points set by Bob</span><span class="chip">Ages are field estimates</span></div>
+  </header>
+  <div id="groups"></div>
+  <footer>Repeat-customer matches are possible, not confirmed. Camera location and timestamp are stronger evidence than the rack on these photo qualities.</footer>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
+  <div class="lb-top">
+    <h3 id="lb-title"></h3>
+    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-close">Close</button></div>
+  </div>
+  <div class="lb-img" id="lb-stage"><img id="lb-img" alt="" draggable="false"><span class="hint" id="lb-hint">Pinch or double-tap to zoom</span></div>
+  <div class="lb-tools">
+    <button id="z-out" aria-label="Zoom out">−</button><span class="zl" id="z-lvl">100%</span><button id="z-in" aria-label="Zoom in">+</button>
+    <button id="z-reset">Fit</button><button id="z-cap">Hide notes</button><button id="z-fs">Full screen</button>
+  </div>
+  <p class="lb-cap" id="lb-cap"></p>
+</div>
+
+<script>
+const GROUPS=[
+ {key:"shoot",title:"3 and up",sub:"Shooters",c:"var(--shoot)"},
+ {key:"mid",title:"Between 2 and 3",sub:"Let walk",c:"var(--walk)"},
+ {key:"young",title:"Under 2",sub:"Let walk",c:"var(--young)"},
+ {key:"unk",title:"Unknown",sub:"Need a better photo",c:"var(--unk)"}
+];
+const BUCKS=[
+ {id:"K",g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible I",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
+ {id:"I",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible K, D/G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
+ {id:"D",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely G, possible I/A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
+ {id:"G",g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely D, possible J",note:"Low-res, facing camera. Tall 8 with good G2s. If G and J are the same deer, G is likely closer to 3."},
+ {id:"J",g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
+ {id:"A",g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible D/G, N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
+ {id:"F",g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
+ {id:"H",g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
+ {id:"M",g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
+ {id:"N",g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible A",note:"At distance. Modest 8 near ear width, moderate body."},
+ {id:"L",g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
+ {id:"E",g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible C",note:"Small, blurry rack. Could be a 2.5."},
+ {id:"C",g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible E",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
+ {id:"B",g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
+];
+const order=BUCKS.map(b=>b.id);
+const root=document.getElementById("groups");
+root.style.display="grid";root.style.gap="28px";
+for(const g of GROUPS){
+  const list=BUCKS.filter(b=>b.g===g.key); if(!list.length) continue;
+  const s=document.createElement("section"); s.style.setProperty("--c",g.c);
+  s.innerHTML=`<h2>${g.title} <small>${g.sub} · ${list.length}</small></h2><div class="cards"></div>`;
+  const cards=s.querySelector(".cards");
+  for(const b of list){
+    const el=document.createElement("article"); el.className="card"; el.style.setProperty("--c",g.c);
+    el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photo of buck ${b.id}"><img src="img/${b.id}.jpg" alt="Buck ${b.id}" loading="lazy"><span class="tag">${b.id}</span></button>
+    <div class="info">
+      <dl class="stats"><dt>Age</dt><dt>Points</dt><dt>Day/Night</dt><dd>${b.age}</dd><dd>${b.pts}</dd><dd>${b.dn}</dd></dl>
+      <div class="repeat">Repeat customer: <b>${b.rep}</b></div>
+      <p class="note">${b.note}</p>
+    </div>`;
+    cards.appendChild(el);
+  }
+  root.appendChild(s);
+}
+const lb=document.getElementById("lb"),lbImg=document.getElementById("lb-img"),lbT=document.getElementById("lb-title"),lbC=document.getElementById("lb-cap");
+let cur=null,last=null;
+const stage=document.getElementById("lb-stage"),zl=document.getElementById("z-lvl"),hint=document.getElementById("lb-hint");
+const MAX=6;let sc=1,tx=0,ty=0;
+function clampPan(){const r=stage.getBoundingClientRect();const w=lbImg.offsetWidth*sc,h=lbImg.offsetHeight*sc;
+  const mx=Math.max(0,(w-r.width)/2),my=Math.max(0,(h-r.height)/2);tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));}
+function apply(){if(sc<=1){sc=1;tx=0;ty=0;}clampPan();lbImg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+  zl.textContent=Math.round(sc*100)+"%";stage.classList.toggle("zoomed",sc>1);}
+function zoomAt(ns,cx,cy){ns=Math.min(MAX,Math.max(1,ns));const r=stage.getBoundingClientRect();
+  const px=cx-(r.left+r.width/2),py=cy-(r.top+r.height/2);tx=px-(px-tx)*ns/sc;ty=py-(py-ty)*ns/sc;sc=ns;apply();hint.hidden=true;}
+function zoomCenter(f){const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+r.width/2,r.top+r.height/2);}
+function resetZoom(){sc=1;tx=0;ty=0;apply();}
+function show(id){const b=BUCKS.find(x=>x.id===id);cur=id;resetZoom();lbImg.src=`img/${id}.jpg`;lbImg.alt=`Buck ${id}`;
+  lbT.textContent=`Buck ${id} · ${b.age} · ${b.pts} pts`;lbC.textContent=`${b.dn}. Repeat customer: ${b.rep}. ${b.note}`;}
+function open(id){last=document.activeElement;lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-close").focus();}
+function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;last&&last.focus();}
+function step(d){const i=order.indexOf(cur);show(order[(i+d+order.length)%order.length]);}
+root.addEventListener("click",e=>{const t=e.target.closest(".thumb");if(t)open(t.dataset.id);});
+document.getElementById("lb-close").onclick=close;
+document.getElementById("lb-prev").onclick=()=>step(-1);
+document.getElementById("lb-next").onclick=()=>step(1);
+document.getElementById("z-in").onclick=()=>zoomCenter(1.5);
+document.getElementById("z-out").onclick=()=>zoomCenter(1/1.5);
+document.getElementById("z-reset").onclick=resetZoom;
+const capBtn=document.getElementById("z-cap");
+capBtn.onclick=()=>{const off=lb.classList.toggle("capoff");capBtn.textContent=off?"Show notes":"Hide notes";requestAnimationFrame(apply);};
+const fsBtn=document.getElementById("z-fs");
+fsBtn.onclick=()=>{const p=document.fullscreenElement?document.exitFullscreen():(lb.requestFullscreen?lb.requestFullscreen():Promise.reject());
+  Promise.resolve(p).catch(()=>{lb.classList.add("capoff");capBtn.textContent="Show notes";fsBtn.textContent="Full screen (not supported here)";});};
+document.addEventListener("fullscreenchange",()=>{fsBtn.textContent=document.fullscreenElement?"Exit full screen":"Full screen";requestAnimationFrame(apply);});
+window.addEventListener("resize",()=>{if(!lb.hidden)apply();});
+document.addEventListener("keydown",e=>{if(lb.hidden)return;if(e.key==="Escape")close();
+  if(e.key==="ArrowRight"&&sc===1)step(1);if(e.key==="ArrowLeft"&&sc===1)step(-1);
+  if(e.key==="+"||e.key==="=")zoomCenter(1.5);if(e.key==="-")zoomCenter(1/1.5);if(e.key==="0")resetZoom();});
+// desktop: wheel zoom, drag pan, double-click
+stage.addEventListener("wheel",e=>{e.preventDefault();zoomAt(sc*(e.deltaY<0?1.2:1/1.2),e.clientX,e.clientY);},{passive:false});
+stage.addEventListener("dblclick",e=>{sc>1?resetZoom():zoomAt(2.5,e.clientX,e.clientY);});
+let drag=null;
+stage.addEventListener("mousedown",e=>{if(sc<=1)return;drag={x:e.clientX,y:e.clientY,tx,ty};stage.classList.add("dragging");e.preventDefault();});
+window.addEventListener("mousemove",e=>{if(!drag)return;tx=drag.tx+e.clientX-drag.x;ty=drag.ty+e.clientY-drag.y;apply();});
+window.addEventListener("mouseup",()=>{drag=null;stage.classList.remove("dragging");});
+stage.addEventListener("click",e=>{if(e.target===stage&&sc===1)close();});
+// touch: pinch, pan, double-tap, swipe to next when not zoomed
+let t0=null,pinch=null,lastTap=0;
+const dist=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+stage.addEventListener("touchstart",e=>{
+  if(e.touches.length===2){pinch={d:dist(e.touches[0],e.touches[1]),s:sc,cx:(e.touches[0].clientX+e.touches[1].clientX)/2,cy:(e.touches[0].clientY+e.touches[1].clientY)/2};t0=null;}
+  else if(e.touches.length===1){const t=e.touches[0];t0={x:t.clientX,y:t.clientY,tx,ty,time:Date.now()};}
+},{passive:true});
+stage.addEventListener("touchmove",e=>{e.preventDefault();
+  if(pinch&&e.touches.length===2){const ns=pinch.s*dist(e.touches[0],e.touches[1])/pinch.d;
+    const cx=(e.touches[0].clientX+e.touches[1].clientX)/2,cy=(e.touches[0].clientY+e.touches[1].clientY)/2;zoomAt(ns,cx,cy);}
+  else if(t0&&e.touches.length===1&&sc>1){const t=e.touches[0];tx=t0.tx+t.clientX-t0.x;ty=t0.ty+t.clientY-t0.y;apply();}
+},{passive:false});
+stage.addEventListener("touchend",e=>{
+  if(pinch&&e.touches.length<2){pinch=null;return;}
+  if(!t0)return;const t=e.changedTouches[0];const dx=t.clientX-t0.x,dy=t.clientY-t0.y;const now=Date.now();
+  if(Math.abs(dx)<10&&Math.abs(dy)<10&&now-t0.time<250){
+    if(now-lastTap<300){sc>1?resetZoom():zoomAt(2.5,t.clientX,t.clientY);lastTap=0;}else lastTap=now;}
+  else if(sc===1&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))step(dx<0?1:-1);
+  t0=null;
+});
+</script>
+
+<script>
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
