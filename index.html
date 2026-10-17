@@ -46,7 +46,8 @@ section h2 small{font-family:var(--body);font-size:.85rem;letter-spacing:0;text-
 .thumb .tag{position:absolute;left:0;top:0;background:var(--c);color:#fff;font-family:var(--display);font-size:1.3rem;font-weight:700;padding:0 8px;line-height:1.5}
 .thumb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .info{min-width:0;display:grid;gap:6px}
-.stats{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:2px 16px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0}
+.stats div{display:grid;gap:1px}
 .stats dt{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .stats dd{margin:0;font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
 .repeat{font-size:.88rem}
@@ -84,7 +85,7 @@ footer{font-size:.85rem;color:var(--muted)}
     <div class="legend"><span class="chip">"your call" = points set by Bob</span><span class="chip">Ages are field estimates</span></div>
   </header>
   <div id="groups"></div>
-  <footer>Repeat-customer matches are possible, not confirmed. Camera location and timestamp are stronger evidence than the rack on these photo qualities.</footer>
+  <footer>Sightings counts extra photos of a buck only when the match is over 90% certain; otherwise a new photo gets its own letter. Repeat-customer matches below that bar are possible, not confirmed. Camera location and timestamp are stronger evidence than the rack on these photo qualities.</footer>
 </div>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
@@ -108,20 +109,20 @@ const GROUPS=[
  {key:"unk",title:"Unknown",sub:"Need a better photo",c:"var(--unk)"}
 ];
 const BUCKS=[
- {id:"K",g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible I",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
- {id:"I",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible K, D/G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
- {id:"D",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely G, possible I/A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
- {id:"G",g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely D, possible J",note:"Low-res, facing camera. Tall 8 with good G2s. If G and J are the same deer, G is likely closer to 3."},
- {id:"J",g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
- {id:"A",g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible D/G, N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
- {id:"F",g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
- {id:"H",g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
- {id:"M",g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
- {id:"N",g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible A",note:"At distance. Modest 8 near ear width, moderate body."},
- {id:"L",g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
- {id:"E",g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible C",note:"Small, blurry rack. Could be a 2.5."},
- {id:"C",g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible E",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
- {id:"B",g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
+ {id:"K",n:1,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible I",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
+ {id:"I",n:1,g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible K, D/G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
+ {id:"D",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely G, possible I/A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
+ {id:"G",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely D, possible J",note:"Low-res, facing camera. Tall 8 with good G2s. If G and J are the same deer, G is likely closer to 3."},
+ {id:"J",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
+ {id:"A",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible D/G, N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
+ {id:"F",n:1,g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
+ {id:"H",n:1,g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
+ {id:"M",n:1,g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
+ {id:"N",n:1,g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible A",note:"At distance. Modest 8 near ear width, moderate body."},
+ {id:"L",n:1,g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
+ {id:"E",n:1,g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible C",note:"Small, blurry rack. Could be a 2.5."},
+ {id:"C",n:1,g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible E",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
+ {id:"B",n:1,g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
 ];
 const order=BUCKS.map(b=>b.id);
 const root=document.getElementById("groups");
@@ -135,7 +136,7 @@ for(const g of GROUPS){
     const el=document.createElement("article"); el.className="card"; el.style.setProperty("--c",g.c);
     el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photo of buck ${b.id}"><img src="img/${b.id}.jpg" alt="Buck ${b.id}" loading="lazy"><span class="tag">${b.id}</span></button>
     <div class="info">
-      <dl class="stats"><dt>Age</dt><dt>Points</dt><dt>Day/Night</dt><dd>${b.age}</dd><dd>${b.pts}</dd><dd>${b.dn}</dd></dl>
+      <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div></dl>
       <div class="repeat">Repeat customer: <b>${b.rep}</b></div>
       <p class="note">${b.note}</p>
     </div>`;
@@ -156,7 +157,7 @@ function zoomAt(ns,cx,cy){ns=Math.min(MAX,Math.max(1,ns));const r=stage.getBound
 function zoomCenter(f){const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+r.width/2,r.top+r.height/2);}
 function resetZoom(){sc=1;tx=0;ty=0;apply();}
 function show(id){const b=BUCKS.find(x=>x.id===id);cur=id;resetZoom();lbImg.src=`img/${id}.jpg`;lbImg.alt=`Buck ${id}`;
-  lbT.textContent=`Buck ${id} · ${b.age} · ${b.pts} pts`;lbC.textContent=`${b.dn}. Repeat customer: ${b.rep}. ${b.note}`;}
+  lbT.textContent=`Buck ${id} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;lbC.textContent=`${b.dn}. Repeat customer: ${b.rep}. ${b.note}`;}
 function open(id){last=document.activeElement;lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-close").focus();}
 function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;last&&last.focus();}
 function step(d){const i=order.indexOf(cur);show(order[(i+d+order.length)%order.length]);}
