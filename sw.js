@@ -1,5 +1,5 @@
 // Network-first so new bucks show up as soon as they're pushed; cache is the offline fallback.
-const CACHE = "buck-board-v1";
+const CACHE = "buck-board-v2";
 self.addEventListener("install", e => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", e => {
