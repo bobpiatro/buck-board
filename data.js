@@ -1,0 +1,61 @@
+// Buck Board 26 data. Claude updates this file when new photos come in.
+// Names, points and seen-live sightings edited by the group live in Firebase and override what's here.
+window.STANDS = [
+  {group:"Gun blinds", list:["TC BOY","SHP","LMK","LTC","LRH","MTN TOP"]},
+  {group:"Bow stands", list:["SHROUD","LTC CLIMBER","LMK CLIMBER","LADDER"]},
+  {group:"", list:["OTHER"]}
+];
+
+// g: shoot = 3.5+, mid = 2-3, young = under 2, unk = can't age
+// hist: camera sightings, newest first. pics are files in img/.
+// In rep/note text, @X means "the current name of buck X".
+window.BUCKS = [
+ {id:"K",name:"WIDE LOAD",g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible @I",
+  note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size.",
+  hist:[{added:"10/17/26",cam:"Spypoint Flex-M",pics:["K"]}]},
+ {id:"I",name:"BIG RED",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @K, @D/@G",
+  note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread.",
+  hist:[{added:"10/17/26",time:"5:47 PM",temp:"45°F",pics:["I"]}]},
+ {id:"D",name:"NIGHT SHIFT",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely @G, possible @I/@A",
+  note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack.",
+  hist:[{added:"10/17/26",pics:["D"]}]},
+ {id:"G",name:"TALL BOY",g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely @D, possible @J",
+  note:"Low-res, facing camera. Tall 8 with good G2s. If @G and @J are the same deer, @G is likely closer to 3.",
+  hist:[{added:"10/17/26",pics:["G"]}]},
+ {id:"O",name:"OLD MAN",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible @I, @L",
+  note:"Walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it.",
+  hist:[{added:"10/18/26",pics:["O","O-2"]}]},
+ {id:"J",name:"PITCHFORK",g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible @G",
+  note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline.",
+  hist:[{added:"10/17/26",pics:["J"]}]},
+ {id:"A",name:"EARLY BIRD",g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible @D/@G, @N",
+  note:"Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",
+  hist:[{added:"10/17/26",date:"10/03/26",time:"5:13 AM",temp:"41°F",pics:["A"]}]},
+ {id:"F",name:"LOPSIDE",g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",
+  note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled.",
+  hist:[{added:"10/17/26",pics:["F"]}]},
+ {id:"H",name:"DASH",g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",
+  note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count.",
+  hist:[{added:"10/17/26",pics:["H"]}]},
+ {id:"M",name:"STILTS",g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",
+  note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines.",
+  hist:[{added:"10/17/26",pics:["M"]}]},
+ {id:"N",name:"SHADOW",g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible @A",
+  note:"At distance. Modest 8 near ear width, moderate body.",
+  hist:[{added:"10/17/26",pics:["N"]}]},
+ {id:"L",name:"TIP TOE",g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",
+  note:"Rack barely readable. Moderate body. Age is a guess.",
+  hist:[{added:"10/17/26",pics:["L"]}]},
+ {id:"P",name:"TURNSTILE",g:"mid",age:"2.5",pts:"6 (confirmed)",dn:"Day",rep:"Possible @J, @C",
+  note:"Straight belly, long legs, neck not swelled. Narrow rack inside the ears with tall G2s. Confirmed 6 point. If this is @J, @J is likely a 2.5 too.",
+  hist:[{added:"10/18/26",date:"10/18/26",time:"9:02 AM",temp:"47°F",cam:"Little Tobin Clarkinski (Moultrie)",pics:["P","P-2"]}]},
+ {id:"E",name:"SMUDGE",g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible @C",
+  note:"Small, blurry rack. Could be a 2.5.",
+  hist:[{added:"10/17/26",pics:["E"]}]},
+ {id:"C",name:"SMIRK",g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible @E",
+  note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set.",
+  hist:[{added:"10/17/26",pics:["C"]}]},
+ {id:"B",name:"GHOST",g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",
+  note:"Motion blur in the ferns. Different spot from the other cameras.",
+  hist:[{added:"10/17/26",pics:["B"]}]}
+];

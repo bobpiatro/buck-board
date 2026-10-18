@@ -3,346 +3,443 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1d231a">
+<meta name="theme-color" content="#141812">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Buck Board 26</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: one column of grouped buck cards (shooters first), tap a photo for a full-screen view */
+/* One dark field-app look: big names, group color carries shooter / let walk / young */
 :root{
-  --bg:#f3f4ef; --surface:#ffffff; --fg:#1d221b; --muted:#5f6858; --line:#d9ddd1;
-  --accent:#e0601a; --shoot:#c4501a; --walk:#4f6b3a; --young:#7a8a6a; --unk:#7d7d7d;
+  --bg:#141812;--surface:#1d231a;--raise:#252c21;--fg:#e7eadf;--muted:#9aa38f;--line:#2f382a;
+  --accent:#f07a35;--ink:#140c05;
+  --shoot:#5fd068;--mid:#f2cd3a;--young:#ef5a4c;--unk:#9a9a9a;
   --display:"Barlow Condensed","Arial Narrow",sans-serif;
   --body:"Source Sans 3",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#141812; --surface:#1d231a; --fg:#e7eadf; --muted:#9aa38f; --line:#2f382a;
-  --accent:#f07a35; --shoot:#f07a35; --walk:#8fb070; --young:#a3b192; --unk:#9a9a9a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#141812; --surface:#1d231a; --fg:#e7eadf; --muted:#9aa38f; --line:#2f382a;
-  --accent:#f07a35; --shoot:#f07a35; --walk:#8fb070; --young:#a3b192; --unk:#9a9a9a; color-scheme:dark}
-*{box-sizing:border-box}[hidden]{display:none!important}img{max-width:100%}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
-.wrap{max-width:760px;margin:0 auto;display:grid;gap:28px}
-.brand{display:flex;align-items:center;gap:14px}
-.brand img{width:96px;height:auto;flex:none}
-header h1{font-family:var(--display);font-size:2.4rem;letter-spacing:.02em;text-transform:uppercase;margin:0;line-height:1}
-header p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.chip{font-family:var(--mono);font-size:.72rem;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
-section{display:grid;gap:12px}
-section h2{font-family:var(--display);font-size:1.35rem;text-transform:uppercase;letter-spacing:.06em;margin:0;
-  display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--c);padding-bottom:4px;color:var(--c)}
-section h2 small{font-family:var(--body);font-size:.85rem;letter-spacing:0;text-transform:none;color:var(--muted)}
-.cards{display:grid;gap:10px}
-.bname{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid var(--c);padding-bottom:6px}
-.bname h3{margin:0;font-family:var(--display);font-size:1.55rem;letter-spacing:.05em;text-transform:uppercase;line-height:1.05;color:var(--fg);min-width:0;overflow-wrap:anywhere}
-.pencil{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
-.pencil:hover,.pencil:focus-visible{color:var(--accent);border-color:var(--accent);outline:none}
-.card{display:grid;grid-template-columns:112px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;align-items:start}
-.thumb{position:relative;padding:0;border:0;background:none;cursor:zoom-in;border-radius:4px;overflow:hidden;width:112px;aspect-ratio:1;max-width:100%}
-.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.thumb .tag{position:absolute;left:0;top:0;background:var(--c);color:#fff;font-family:var(--display);font-size:1.3rem;font-weight:700;padding:0 8px;line-height:1.5}
-.thumb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.info{min-width:0;display:grid;gap:6px}
-.stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0}
-.stats div{display:grid;gap:1px}
-.stats dt{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.stats dd{margin:0;font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
-.repeat{font-size:.88rem}
-.repeat b{font-weight:600}
-.note{font-size:.88rem;color:var(--muted);margin:0}
-.stamp{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
-footer{font-size:.85rem;color:var(--muted)}
-.rn{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;padding:calc(60px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
-.rn-box{width:100%;max-width:420px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:8px}
-.rn-box h3{margin:0 0 4px;font-family:var(--display);font-size:1.5rem;letter-spacing:.05em;text-transform:uppercase}
-.rn-box label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.rn-box input{font:600 1.05rem var(--body);padding:10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:100%}
-#rn-name{text-transform:uppercase;font-family:var(--display);font-size:1.3rem;letter-spacing:.05em}
-#rn-first{display:grid;gap:8px}
-.rn-box input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
-.rn-err{color:#c43d1a;margin:0;min-height:1.2em;font-size:.9rem}
-.rn-btns{display:flex;gap:8px;justify-content:flex-end}
-.rn-btns button,.hist button{font:600 .95rem var(--body);padding:10px 16px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
-#rn-save{background:var(--accent);border-color:var(--accent);color:#140c05}
-.rn-btns button:disabled{opacity:.5}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;max-width:calc(100% - 32px)}
-.hist{display:grid;gap:8px}.hist h2{font-family:var(--display);font-size:1.2rem;text-transform:uppercase;letter-spacing:.06em;margin:0;color:var(--muted)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent}
+html.locked,html.locked body{overflow:hidden;overscroll-behavior:none}
+.view{max-width:520px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* home */
+.top{display:flex;align-items:center;gap:12px;padding:16px 0 6px}
+.top img{width:54px;height:auto;flex:none}
+.top h1{margin:0;font:700 2rem var(--display);letter-spacing:.03em;text-transform:uppercase;line-height:.95;flex:1;min-width:0}
+.galbtn{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--fg);flex:none}
+.galbtn svg{width:18px;height:18px}
+.grp{margin-top:22px}
+.grp h2{margin:0 0 12px;font:700 2rem var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--c);border-bottom:2px solid var(--c);padding-bottom:2px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.grp h2 small{font:600 .9rem var(--body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.buck{display:block;margin:0 0 18px;color:inherit;text-decoration:none}
+.buck .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.buck .nm{font:700 1.7rem var(--display);letter-spacing:.05em;line-height:1;min-width:0;overflow-wrap:anywhere}
+.buck .age{font:500 1rem var(--mono);color:var(--c);flex:none}
+.ph{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:#000}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.go{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.65);color:#fff;font:600 .8rem var(--body);padding:4px 10px;border-radius:99px}
+.badge{position:absolute;left:8px;top:8px;background:var(--accent);color:var(--ink);font:700 .82rem var(--body);padding:3px 10px;border-radius:99px;max-width:calc(100% - 16px)}
+.foot{margin-top:24px;font-size:.85rem;color:var(--muted)}
+
+/* buck page */
+.back{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--accent);font-weight:600;font-size:1.05rem;padding:16px 0 8px;cursor:pointer;text-decoration:none}
+.dname{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dname h1{margin:0;font:700 2.6rem var(--display);letter-spacing:.05em;line-height:1;min-width:0;overflow-wrap:anywhere}
+.pencil{flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.pencil svg{width:18px;height:18px}
+.pill{display:inline-block;margin-top:8px;background:var(--c);color:var(--ink);font:700 .85rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:2px 10px;border-radius:4px}
+.live{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:14px;background:var(--accent);color:var(--ink);border:0;border-radius:10px;padding:16px;font:700 1.4rem var(--display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none}
+.hero{display:block;width:100%;margin-top:14px;padding:0;border:0;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:#000;cursor:zoom-in}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.strip{display:flex;gap:6px;margin-top:6px;overflow-x:auto}
+.strip button{padding:0;border:2px solid transparent;border-radius:5px;background:none;cursor:pointer;flex:none}
+.strip button.on{border-color:var(--accent)}
+.strip img{width:72px;height:48px;object-fit:cover;border-radius:3px;display:block}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0 0}
+.quick div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 4px;text-align:center;min-width:0}
+.quick dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.quick dd{margin:0;font:600 1rem var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-top:8px}
+summary{list-style:none;display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary .peek{color:var(--muted);font-weight:400;font-size:.88rem;margin-left:auto;text-align:right;min-width:0}
+summary::after{content:"▾";color:var(--muted);transition:transform .15s;flex:none}
+details[open] summary::after{transform:rotate(180deg)}
+.dbody{padding:0 14px 14px;font-size:.95rem;display:grid;gap:6px}
+.dbody p{margin:0}
+.row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.row span:first-child{color:var(--muted)}
+.row span:last-child{text-align:right;min-width:0}
+.editbtn{justify-self:start;display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:7px 12px;font-weight:600;cursor:pointer}
+.seenlist{list-style:none;margin:0;padding:0}
+.seenlist li{border-bottom:1px solid var(--line);padding:7px 0}
+.seenlist b{font-family:var(--display);letter-spacing:.05em;font-size:1.05rem}
+.seenlist .sub{color:var(--muted);font-size:.9rem}
+.empty{color:var(--muted)}
+
+/* gallery */
+.gtop{display:flex;align-items:baseline;justify-content:space-between;padding:4px 0}
+.gtop h1{margin:0;font:700 2rem var(--display);letter-spacing:.05em;text-transform:uppercase}
+.count{color:var(--muted);font:500 .85rem var(--mono)}
+.day{margin:16px 0 6px;font:700 1.35rem var(--display);letter-spacing:.04em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tile{position:relative;padding:0;border:0;background:#000;border-radius:4px;overflow:hidden;aspect-ratio:3/2;cursor:pointer}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile span{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;font:700 1rem var(--display);letter-spacing:.06em;padding:16px 8px 4px;text-align:left}
+
+/* seen live form */
+.whohd{display:flex;align-items:center;gap:14px;margin:2px 0 18px}
+.whohd img{width:96px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--c);flex:none}
+.whohd h1{margin:0;font:700 3rem var(--display);letter-spacing:.04em;line-height:.95;overflow-wrap:anywhere;min-width:0}
+.whohd p{margin:4px 0 0;font-weight:600;font-size:1.05rem;color:var(--muted)}
+.form{display:grid;gap:18px}
+.flabel{font:700 1.05rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;gap:8px}
+.flabel em{font:500 .78rem var(--mono);color:var(--accent);font-style:normal;letter-spacing:0;text-transform:none}
+.sgroup{font:600 .78rem var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:11px 15px;font:700 1.05rem var(--display);letter-spacing:.05em;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.timebox{display:flex;gap:8px;align-items:center}
+.timebox input{flex:1;min-width:0;font:600 1.15rem var(--mono);padding:11px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.timebox span{font-weight:600;color:var(--muted)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:420px){.pair{grid-template-columns:1fr}}
+.compass{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:270px}
+.compass button{aspect-ratio:1.4;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;font:700 1.2rem var(--display);letter-spacing:.05em;cursor:pointer}
+.compass button.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.compass .mid{display:grid;place-items:center;text-align:center;color:var(--muted);font-size:.75rem;line-height:1.2}
+.field{width:100%;font:1rem var(--body);padding:11px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.save{width:100%;background:var(--accent);color:var(--ink);border:0;border-radius:10px;padding:17px;font:700 1.35rem var(--display);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.save:disabled{opacity:.6}
+.err{color:#ff8a7a;margin:0;min-height:1.2em;font-weight:600}
+.done{background:var(--surface);border:2px solid var(--shoot);border-radius:10px;padding:16px;display:grid;gap:6px}
+.done h2{margin:0;font:700 1.6rem var(--display);letter-spacing:.05em;color:var(--shoot)}
+
+/* edit dialog */
+.dlg{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.65);display:flex;align-items:flex-start;justify-content:center;padding:calc(56px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.dlg form{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:8px}
+.dlg h3{margin:0 0 4px;font:700 1.6rem var(--display);letter-spacing:.05em;text-transform:uppercase}
+.dlg label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.dlg .field.big{font:700 1.4rem var(--display);letter-spacing:.05em;text-transform:uppercase}
+.btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btns button{font-weight:600;padding:11px 16px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer}
+.btns .primary{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
+
+/* history at bottom of home */
+.hist{margin-top:26px}
+.hist h2{margin:0 0 6px;font:700 1.2rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .hist ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .hist li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem;border-bottom:1px solid var(--line);padding-bottom:6px}
-.hist li span{min-width:0}.hist b{font-family:var(--display);letter-spacing:.04em}
-.hist button{padding:6px 12px;font-size:.85rem;flex:none}
-/* lightbox */
-html.viewing,html.viewing body{overflow:hidden;overscroll-behavior:none}
-.lb{position:fixed;inset:0;background:#000;overscroll-behavior:contain;z-index:20;display:flex;flex-direction:column;
-  padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));color:#eef0e8}
-.lb-mode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:calc(-12px - env(safe-area-inset-top,0px)) calc(-1 * max(12px,env(safe-area-inset-right,0px))) 10px calc(-1 * max(12px,env(safe-area-inset-left,0px)));padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));background:#f07a35;color:#140c05}
-.lb-mode .lbl,.lb-mode .count{white-space:nowrap}
-.lb-mode .lbl{font:700 1.05rem var(--display);letter-spacing:.12em;text-transform:uppercase}
-.lb-mode .count{font:500 .85rem var(--mono);font-variant-numeric:tabular-nums}
-.lb .lb-x{background:#140c05;color:#fff;border:0;font-size:1rem;padding:8px 14px}
-.lb-dots{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:6px 0 2px}
-.lb-dots i{width:7px;height:7px;border-radius:50%;background:#4a5541}
-.lb-dots i.on{background:#f07a35;transform:scale(1.35)}
-.lb button:disabled{opacity:.3;cursor:default}
-.lb-end{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);border:1px solid #f07a35;color:#fff;font:700 1.1rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;border-radius:6px;pointer-events:none}
+.hist li span{min-width:0}
+.hist b{font-family:var(--display);letter-spacing:.04em}
+.hist button{flex:none;font-weight:600;font-size:.85rem;padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer}
+
+/* photo viewer */
+.vw{position:fixed;inset:0;z-index:40;background:#000;display:flex;flex-direction:column;color:#eef0e8;overscroll-behavior:contain}
+.vbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--accent);color:var(--ink);padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px))}
+.vbar .vname{font:700 1.5rem var(--display);letter-spacing:.06em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vbar .vcount{font:500 .8rem var(--mono);white-space:nowrap}
+.vbar button{flex:none;background:var(--ink);color:#fff;border:0;border-radius:6px;padding:8px 12px;font-weight:600;cursor:pointer}
+.vstage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;position:relative;cursor:zoom-in}
+.vstage.zoomed{cursor:grab}
+.vstage img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center;user-select:none;-webkit-user-drag:none}
+.vmsg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);border:1px solid var(--accent);font:700 1.1rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;border-radius:6px;pointer-events:none}
+.vtools{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.vtools button{background:#2a3125;color:#eef0e8;border:1px solid #4a5541;border-radius:6px;padding:9px 14px;font-weight:600;cursor:pointer;min-width:46px}
+.vtools button:disabled{opacity:.3}
+.vtools .zl{align-self:center;font:500 .85rem var(--mono);min-width:4.5ch;text-align:center}
 @keyframes nudge{0%,100%{transform:translateX(0)}30%{transform:translateX(var(--nx))}60%{transform:translateX(calc(var(--nx) * -.4))}}
-.lb-img.bump img{animation:nudge .35s ease}
-@media (prefers-reduced-motion:reduce){.lb-img.bump img{animation:none}}
-.lb-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.lb-top h3{font-family:var(--display);font-size:clamp(1.1rem,4.6vw,1.6rem);min-width:0;line-height:1.15;margin:0;text-transform:uppercase}
-.lb button{background:#2a3125;color:#eef0e8;border:1px solid #4a5541;border-radius:4px;font:600 .95rem var(--body);padding:8px 14px;cursor:pointer}
-.lb button:focus-visible{outline:3px solid #f07a35}
-.lb-img{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;margin:10px 0;overflow:hidden;touch-action:none;cursor:zoom-in;position:relative}
-.lb-img.zoomed{cursor:grab}
-.lb-img.dragging{cursor:grabbing}
-.lb-img img{max-height:100%;max-width:100%;object-fit:contain;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none}
-.lb-img .hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font:500 .72rem var(--mono);background:rgba(0,0,0,.55);padding:3px 8px;border-radius:99px;pointer-events:none;white-space:nowrap}
-.lb-cap{font-size:.92rem;max-width:65ch;margin:0 auto}
-.lb.capoff .lb-cap{display:none}
-.lb-nav{display:flex;gap:6px;flex:none}
-.lb-nav button{font-size:1.3rem;padding:6px 16px}
-.lb-tools{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
-.lb-tools .zl{font:500 .85rem var(--mono);min-width:4.5ch;text-align:center;align-self:center;font-variant-numeric:tabular-nums}
-@media (max-width:420px){.card{grid-template-columns:92px 1fr}.thumb{width:92px}}
+.vstage.bump img{animation:nudge .35s ease}
+@media (prefers-reduced-motion:reduce){.vstage.bump img{animation:none}*{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 
+<main class="view" id="v-home"></main>
+<main class="view" id="v-buck" hidden></main>
+<main class="view" id="v-gallery" hidden></main>
+<main class="view" id="v-seen" hidden></main>
 
-<div class="wrap">
-  <header>
-    <div class="brand"><img src="icons/logo.png" alt="Hubbard Lake Social Club logo" width="96" height="96"><h1>Buck Board 26</h1></div>
-    <p>Trail cam reviews, grouped by age. Tap a photo to see the full shot. Shooter line is 3.5+.</p>
-    <div class="legend"><span class="chip">"your call" = points set by Bob</span><span class="chip">Ages are field estimates</span></div>
-  </header>
-  <div id="groups"></div>
-  <section class="hist" id="hist" hidden><h2>Rename history</h2><ul id="hist-list"></ul></section>
-  <footer>Sightings counts extra photos of a buck only when the match is over 90% certain; otherwise a new photo gets its own letter. Repeat-customer matches below that bar are possible, not confirmed. Camera location and timestamp are stronger evidence than the rack on these photo qualities.</footer>
-</div>
-
-<div class="rn" id="rn" hidden role="dialog" aria-modal="true" aria-labelledby="rn-title">
-  <form class="rn-box" id="rn-form" novalidate>
-    <h3 id="rn-title">Rename buck</h3>
-    <label for="rn-name">New name</label>
-    <input id="rn-name" maxlength="24" autocomplete="off" autocapitalize="characters">
-    <div id="rn-first" hidden>
-      <label for="rn-by">Your name</label>
-      <input id="rn-by" maxlength="30" autocomplete="name" placeholder="So the group knows who renamed it">
-      <label for="rn-code">Camp code</label>
-      <input id="rn-code" maxlength="40" autocomplete="off" placeholder="Ask Bob">
+<div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+  <form id="dlg-form" novalidate>
+    <h3 id="dlg-title">Rename</h3>
+    <label for="dlg-val" id="dlg-lbl">New name</label>
+    <input class="field big" id="dlg-val" maxlength="24" autocomplete="off">
+    <div id="dlg-first" hidden style="display:grid;gap:8px">
+      <label for="dlg-by">Your name</label>
+      <input class="field" id="dlg-by" maxlength="30" autocomplete="name" placeholder="So the group knows who changed it">
+      <label for="dlg-code">Camp code</label>
+      <input class="field" id="dlg-code" maxlength="40" autocomplete="off" placeholder="Ask Bob">
     </div>
-    <p class="rn-err" id="rn-err" role="alert"></p>
-    <div class="rn-btns"><button type="button" id="rn-cancel">Cancel</button><button type="submit" id="rn-save">Save name</button></div>
+    <p class="err" id="dlg-err" role="alert"></p>
+    <div class="btns"><button type="button" id="dlg-cancel">Cancel</button><button type="submit" class="primary" id="dlg-save">Save</button></div>
   </form>
 </div>
-<div class="toast" id="toast" hidden role="status"></div>
-<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
-  <div class="lb-mode"><span class="lbl">Photo viewer</span><span class="count" id="lb-count"></span><button class="lb-x" id="lb-x" aria-label="Close viewer">✕ Close</button></div>
-  <div class="lb-top">
-    <h3 id="lb-title"></h3>
-    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-pic" hidden>Photo 1/2</button><button id="lb-close" hidden>Close</button></div>
+
+<div class="vw" id="vw" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <div class="vbar"><span class="vname" id="vw-name"></span><span class="vcount" id="vw-count"></span><button id="vw-close" aria-label="Close photo viewer">✕ Close</button></div>
+  <div class="vstage" id="vw-stage"><img id="vw-img" alt="" draggable="false"><span class="vmsg" id="vw-msg" hidden></span></div>
+  <div class="vtools">
+    <button id="vw-prev" aria-label="Previous photo">‹</button>
+    <button id="vw-out" aria-label="Zoom out">−</button><span class="zl" id="vw-zl">100%</span><button id="vw-in" aria-label="Zoom in">+</button>
+    <button id="vw-fit">Fit</button>
+    <button id="vw-next" aria-label="Next photo">›</button>
   </div>
-  <div class="lb-img" id="lb-stage"><img id="lb-img" alt="" draggable="false"><span class="hint" id="lb-hint">Swipe for next buck · pinch to zoom</span><span class="lb-end" id="lb-end" hidden></span></div>
-  <div class="lb-dots" id="lb-dots" aria-hidden="true"></div>
-  <div class="lb-tools">
-    <button id="z-out" aria-label="Zoom out">−</button><span class="zl" id="z-lvl">100%</span><button id="z-in" aria-label="Zoom in">+</button>
-    <button id="z-reset">Fit</button><button id="z-cap">Hide notes</button><button id="z-fs">Full screen</button>
-  </div>
-  <p class="lb-cap" id="lb-cap"></p>
 </div>
 
-<script>
-const GROUPS=[
- {key:"shoot",title:"3 and up",sub:"Shooters",c:"var(--shoot)"},
- {key:"mid",title:"Between 2 and 3",sub:"Let walk",c:"var(--walk)"},
- {key:"young",title:"Under 2",sub:"Let walk",c:"var(--young)"},
- {key:"unk",title:"Unknown",sub:"Need a better photo",c:"var(--unk)"}
-];
-const BUCKS=[
- {id:"K",name:"WIDE LOAD",num:11,entered:"10/17/26",cam:"Spypoint Flex-M (no date shown)",n:1,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible @I",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
- {id:"I",name:"BIG RED",num:9,entered:"10/17/26",cam:"5:47 PM · 45°F (date cut off)",n:1,g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @K, @D/@G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
- {id:"D",name:"NIGHT SHIFT",num:4,entered:"10/17/26",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely @G, possible @I/@A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
- {id:"G",name:"TALL BOY",num:7,entered:"10/17/26",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely @D, possible @J",note:"Low-res, facing camera. Tall 8 with good G2s. If @G and @J are the same deer, @G is likely closer to 3."},
- {id:"O",name:"OLD MAN",num:15,entered:"10/18/26",n:1,pics:["O","O-2"],g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible @I, @L",note:"Two photos from one sighting, walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it."},
- {id:"J",name:"PITCHFORK",num:10,entered:"10/17/26",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible @G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
- {id:"A",name:"EARLY BIRD",num:1,entered:"10/17/26",cam:"10/03/26 · 5:13 AM · 41°F",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible @D/@G, @N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
- {id:"F",name:"LOPSIDE",num:6,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
- {id:"H",name:"DASH",num:8,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
- {id:"M",name:"STILTS",num:13,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
- {id:"N",name:"SHADOW",num:14,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible @A",note:"At distance. Modest 8 near ear width, moderate body."},
- {id:"L",name:"TIP TOE",num:12,entered:"10/17/26",n:1,g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
- {id:"P",name:"TURNSTILE",num:16,entered:"10/18/26",cam:"Moultrie · Little Tobin Clarkinski · 10/18/26 · 9:02 AM · 47°F",n:1,pics:["P","P-2"],g:"mid",age:"2.5",pts:"6 (confirmed)",dn:"Day",rep:"Possible @J, @C",note:"Two photos from one sighting. Straight belly, long legs, neck not swelled. Narrow rack inside the ears with tall G2s. Confirmed 6 point by Bob. If this is @J, @J is likely a 2.5 too."},
- {id:"E",name:"SMUDGE",num:5,entered:"10/17/26",n:1,g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible @C",note:"Small, blurry rack. Could be a 2.5."},
- {id:"C",name:"SMIRK",num:3,entered:"10/17/26",n:1,g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible @E",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
- {id:"B",name:"GHOST",num:2,entered:"10/17/26",n:1,g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
-];
-const order=BUCKS.map(b=>b.id);
-const root=document.getElementById("groups");
-root.style.display="grid";root.style.gap="28px";
-const DEFAULT_NAMES=Object.fromEntries(BUCKS.map(b=>[b.id,b.name]));
-try{const c=JSON.parse(localStorage.getItem("bb-names")||"{}");BUCKS.forEach(b=>{if(c[b.id])b.name=c[b.id];});}catch(e){}
-const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const nameOf=id=>{const b=BUCKS.find(x=>x.id===id);return b?b.name:id;};
-const fillText=t=>String(t).replace(/@([A-Z])/g,(m,id)=>nameOf(id));
-const fill=t=>esc(t).replace(/@([A-Z])/g,(m,id)=>nameOf(id));
-function render(){root.innerHTML="";
-for(const g of GROUPS){
-  const list=BUCKS.filter(b=>b.g===g.key); if(!list.length) continue;
-  const s=document.createElement("section"); s.style.setProperty("--c",g.c);
-  s.innerHTML=`<h2>${g.title} <small>${g.sub} · ${list.length}</small></h2><div class="cards"></div>`;
-  const cards=s.querySelector(".cards");
-  for(const b of list){
-    const el=document.createElement("article"); el.className="card"; el.style.setProperty("--c",g.c);
-    el.innerHTML=`<div class="bname"><h3 class="nm" data-name="${b.id}">${esc(b.name)}</h3><button class="pencil" data-edit="${b.id}" aria-label="Rename ${esc(b.name)}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z M14 6l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
-    <button class="thumb" data-id="${b.id}" aria-label="Open photos of ${esc(b.name)}"><img src="img/${b.id}.jpg" alt="${esc(b.name)}" loading="lazy"></button>
-    <div class="info">
-      <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div><div><dt>Entered</dt><dd>${b.entered}</dd></div></dl>
-      ${b.cam?`<div class="stamp">Camera: ${b.cam}</div>`:""}
-      <div class="repeat">Repeat customer: <b>${fill(b.rep)}</b></div>
-      <p class="note">${fill(b.note)}</p>
-    </div>`;
-    cards.appendChild(el);
-  }
-  root.appendChild(s);
-}}
-render();
-const lb=document.getElementById("lb"),lbImg=document.getElementById("lb-img"),lbT=document.getElementById("lb-title"),lbC=document.getElementById("lb-cap");
-let cur=null,last=null;
-const stage=document.getElementById("lb-stage"),zl=document.getElementById("z-lvl"),hint=document.getElementById("lb-hint");
-const MAX=6;let sc=1,tx=0,ty=0;
-function clampPan(){const r=stage.getBoundingClientRect();const w=lbImg.offsetWidth*sc,h=lbImg.offsetHeight*sc;
-  const mx=Math.max(0,(w-r.width)/2),my=Math.max(0,(h-r.height)/2);tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));}
-function apply(){if(sc<=1){sc=1;tx=0;ty=0;}clampPan();lbImg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
-  zl.textContent=Math.round(sc*100)+"%";stage.classList.toggle("zoomed",sc>1);}
-function zoomAt(ns,cx,cy){ns=Math.min(MAX,Math.max(1,ns));const r=stage.getBoundingClientRect();
-  const px=cx-(r.left+r.width/2),py=cy-(r.top+r.height/2);tx=px-(px-tx)*ns/sc;ty=py-(py-ty)*ns/sc;sc=ns;apply();hint.hidden=true;}
-function zoomCenter(f){const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+r.width/2,r.top+r.height/2);}
-function resetZoom(){sc=1;tx=0;ty=0;apply();}
-let pic=0;const picBtn=document.getElementById("lb-pic");
-function pics(b){return b.pics||[b.id];}
-function show(id,p=0){const b=BUCKS.find(x=>x.id===id);cur=id;pic=p;resetZoom();const ps=pics(b);lbImg.src=`img/${ps[pic]}.jpg`;picBtn.hidden=ps.length<2;picBtn.textContent=`Photo ${pic+1}/${ps.length}`;lbImg.alt=b.name;
-  lbT.textContent=`${b.name} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;navState();lbC.textContent=`${b.dn}. Entered ${b.entered}.${b.cam?" Camera: "+b.cam+".":""} Repeat customer: ${fillText(b.rep)}. ${fillText(b.note)}`;}
-const cnt=document.getElementById("lb-count"),dots=document.getElementById("lb-dots"),endMsg=document.getElementById("lb-end"),prevB=document.getElementById("lb-prev"),nextB=document.getElementById("lb-next");
-dots.innerHTML=order.map(()=>"<i></i>").join("");
-function navState(){const i=order.indexOf(cur);cnt.textContent=`Buck ${i+1} of ${order.length}`;prevB.disabled=i===0;nextB.disabled=i===order.length-1;
-  [...dots.children].forEach((d,k)=>d.classList.toggle("on",k===i));}
-let endT=null;
-function atEnd(d){endMsg.textContent=d>0?"Last buck":"First buck";endMsg.hidden=false;stage.style.setProperty("--nx",(d>0?-24:24)+"px");
-  stage.classList.remove("bump");void stage.offsetWidth;stage.classList.add("bump");clearTimeout(endT);endT=setTimeout(()=>{endMsg.hidden=true;stage.classList.remove("bump");},1100);}
-function open(id){last=document.activeElement;document.documentElement.classList.add("viewing");lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-x").focus();}
-function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;endMsg.hidden=true;document.documentElement.classList.remove("viewing");last&&last.focus();}
-function step(d){const i=order.indexOf(cur),j=i+d;if(j<0||j>=order.length){atEnd(d);return;}endMsg.hidden=true;show(order[j]);}
-root.addEventListener("click",e=>{const t=e.target.closest(".thumb");if(t)open(t.dataset.id);const p=e.target.closest(".pencil");if(p)renameBuck(p.dataset.edit,p);});
-function renameBuck(id){if(window.bbRename)window.bbRename(id);else toast("Renaming is loading. Try again in a second.");}
-const toastEl=document.getElementById("toast");let toastT=null;
-function toast(t){toastEl.textContent=t;toastEl.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>toastEl.hidden=true,3000);}
-window.BB={esc,nameOf,toast,defaults:DEFAULT_NAMES,
-  current:()=>Object.fromEntries(BUCKS.map(b=>[b.id,b.name])),
-  applyNames(live){let ch=false;BUCKS.forEach(b=>{const n=live[b.id]||DEFAULT_NAMES[b.id];if(n!==b.name){b.name=n;ch=true;}});
-    if(ch){const y=scrollY;render();scrollTo(0,y);if(!lb.hidden&&cur)show(cur,pic);}}};
-document.getElementById("lb-close").onclick=close;document.getElementById("lb-x").onclick=close;
-picBtn.onclick=()=>{const b=BUCKS.find(x=>x.id===cur);show(cur,(pic+1)%pics(b).length);};
-document.getElementById("lb-prev").onclick=()=>step(-1);
-document.getElementById("lb-next").onclick=()=>step(1);
-document.getElementById("z-in").onclick=()=>zoomCenter(1.5);
-document.getElementById("z-out").onclick=()=>zoomCenter(1/1.5);
-document.getElementById("z-reset").onclick=resetZoom;
-const capBtn=document.getElementById("z-cap");
-capBtn.onclick=()=>{const off=lb.classList.toggle("capoff");capBtn.textContent=off?"Show notes":"Hide notes";requestAnimationFrame(apply);};
-const fsBtn=document.getElementById("z-fs");
-fsBtn.onclick=()=>{const p=document.fullscreenElement?document.exitFullscreen():(lb.requestFullscreen?lb.requestFullscreen():Promise.reject());
-  Promise.resolve(p).catch(()=>{lb.classList.add("capoff");capBtn.textContent="Show notes";fsBtn.textContent="Full screen (not supported here)";});};
-document.addEventListener("fullscreenchange",()=>{fsBtn.textContent=document.fullscreenElement?"Exit full screen":"Full screen";requestAnimationFrame(apply);});
-window.addEventListener("resize",()=>{if(!lb.hidden)apply();});
-document.addEventListener("keydown",e=>{if(lb.hidden)return;if(e.key==="Escape")close();
-  if(e.key==="ArrowRight"&&sc===1)step(1);if(e.key==="ArrowLeft"&&sc===1)step(-1);
-  if(e.key==="+"||e.key==="=")zoomCenter(1.5);if(e.key==="-")zoomCenter(1/1.5);if(e.key==="0")resetZoom();});
-// desktop: wheel zoom, drag pan, double-click
-stage.addEventListener("wheel",e=>{e.preventDefault();zoomAt(sc*(e.deltaY<0?1.2:1/1.2),e.clientX,e.clientY);},{passive:false});
-stage.addEventListener("dblclick",e=>{sc>1?resetZoom():zoomAt(2.5,e.clientX,e.clientY);});
-let drag=null;
-stage.addEventListener("mousedown",e=>{if(sc<=1)return;drag={x:e.clientX,y:e.clientY,tx,ty};stage.classList.add("dragging");e.preventDefault();});
-window.addEventListener("mousemove",e=>{if(!drag)return;tx=drag.tx+e.clientX-drag.x;ty=drag.ty+e.clientY-drag.y;apply();});
-window.addEventListener("mouseup",()=>{drag=null;stage.classList.remove("dragging");});
-stage.addEventListener("click",e=>{if(e.target===stage&&sc===1)close();});
-// touch: pinch, pan, double-tap, swipe to next when not zoomed
-let t0=null,pinch=null,lastTap=0;
-const dist=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
-stage.addEventListener("touchstart",e=>{
-  if(e.touches.length===2){pinch={d:dist(e.touches[0],e.touches[1]),s:sc,cx:(e.touches[0].clientX+e.touches[1].clientX)/2,cy:(e.touches[0].clientY+e.touches[1].clientY)/2};t0=null;}
-  else if(e.touches.length===1){const t=e.touches[0];t0={x:t.clientX,y:t.clientY,tx,ty,time:Date.now()};}
-},{passive:true});
-stage.addEventListener("touchmove",e=>{e.preventDefault();
-  if(pinch&&e.touches.length===2){const ns=pinch.s*dist(e.touches[0],e.touches[1])/pinch.d;
-    const cx=(e.touches[0].clientX+e.touches[1].clientX)/2,cy=(e.touches[0].clientY+e.touches[1].clientY)/2;zoomAt(ns,cx,cy);}
-  else if(t0&&e.touches.length===1&&sc>1){const t=e.touches[0];tx=t0.tx+t.clientX-t0.x;ty=t0.ty+t.clientY-t0.y;apply();}
-},{passive:false});
-stage.addEventListener("touchend",e=>{
-  if(pinch&&e.touches.length<2){pinch=null;return;}
-  if(!t0)return;const t=e.changedTouches[0];const dx=t.clientX-t0.x,dy=t.clientY-t0.y;const now=Date.now();
-  if(Math.abs(dx)<10&&Math.abs(dy)<10&&now-t0.time<250){
-    if(now-lastTap<300){sc>1?resetZoom():zoomAt(2.5,t.clientX,t.clientY);lastTap=0;}else lastTap=now;}
-  else if(sc===1&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))step(dx<0?1:-1);
-  t0=null;
-});
-</script>
+<div class="toast" id="toast" hidden role="status"></div>
 
+<script src="data.js"></script>
+<script>
+(function(){
+const BUCKS=window.BUCKS, STANDS=window.STANDS;
+const GROUPS=[
+  {key:"shoot",title:"Shooters",sub:"3.5 and up",tag:"Shooter",c:"var(--shoot)"},
+  {key:"mid",title:"Let walk",sub:"2 to 3",tag:"Let walk",c:"var(--mid)"},
+  {key:"young",title:"Young",sub:"under 2",tag:"Young",c:"var(--young)"},
+  {key:"unk",title:"Unknown",sub:"need a better photo",tag:"Unknown",c:"var(--unk)"}
+];
+const grpOf=b=>GROUPS.find(g=>g.key===b.g)||GROUPS[3];
+const byId=id=>BUCKS.find(b=>b.id===id);
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// live data from Firebase (cached for offline)
+let LIVE={names:{},pts:{},seen:{},log:[]};
+try{const c=JSON.parse(ls.get("bb-live")||"null");if(c)LIVE=Object.assign(LIVE,c,{log:[]});}catch(e){}
+const nameOf=id=>{const b=byId(id);return LIVE.names[id]||(b?b.name:id);};
+const ptsOf=id=>LIVE.pts[id]||byId(id).pts;
+const fill=t=>esc(t).replace(/@([A-Z])/g,(m,id)=>esc(nameOf(id)));
+const pics=b=>b.hist.flatMap(h=>h.pics||[]);
+const seenOf=id=>(LIVE.seen[id]||[]).slice().sort((a,b)=>b.when<a.when?-1:1);
+
+// dates
+const pad=n=>String(n).padStart(2,"0");
+const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+function fmtTime(hm){const [h,m]=hm.split(":").map(Number);return `${(h%12)||12}:${pad(m)} ${h<12?"AM":"PM"}`;}
+function fmtWhen(w){if(!w)return"";const [d,t]=w.split("T");const tk=todayKey();
+  const y=new Date();y.setDate(y.getDate()-1);const yk=`${y.getFullYear()}-${pad(y.getMonth()+1)}-${pad(y.getDate())}`;
+  const day=d===tk?"today":d===yk?"yesterday":`${Number(d.slice(5,7))}/${Number(d.slice(8,10))}`;return `${day} ${fmtTime(t)}`;}
+function addedKey(s){const [m,d,y]=s.split("/").map(Number);return (2000+y)*10000+m*100+d;}
+function addedLabel(s){const k=addedKey(s),t=new Date(),tk=t.getFullYear()*10000+(t.getMonth()+1)*100+t.getDate();
+  const y=new Date();y.setDate(y.getDate()-1);const yk=y.getFullYear()*10000+(y.getMonth()+1)*100+y.getDate();
+  return k===tk?"Today":k===yk?"Yesterday":s.slice(0,5).replace(/^0/,"");}
+
+const PENCIL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z M14 6l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+const $=id=>document.getElementById(id);
+
+// ---------- views ----------
+function home(){
+  let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
+    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Gallery</a></div>`;
+  for(const g of GROUPS){const list=BUCKS.filter(b=>b.g===g.key);if(!list.length)continue;
+    h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
+    for(const b of list){const s=seenOf(b.id)[0];
+      h+=`<a class="buck" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age">${esc(b.age)}</span></div>
+        <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}<span class="go">Details ›</span></div></a>`;}
+    h+=`</section>`;}
+  if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span><button data-undo="${i}">Undo</button></li>`).join("")+`</ul></section>`;}
+  h+=`<p class="foot">Ages are field estimates. Shooter line is 3.5+. Names, points and live sightings can be changed by anyone with the camp code.</p>`;
+  $("v-home").innerHTML=h;
+}
+function buck(id){const b=byId(id);if(!b){location.hash="";return;}
+  const g=grpOf(b),ps=pics(b),sn=seenOf(id),last=b.hist[0];
+  const camRows=h=>[h.date||h.time?["When",[h.date,h.time].filter(Boolean).join(" · ")]:null,h.cam?["Camera",h.cam]:null,h.temp?["Temp",h.temp]:null,["Day/Night",b.dn],["Added",h.added]].filter(Boolean).map(r=>`<div class="row"><span>${r[0]}</span><span>${esc(r[1])}</span></div>`).join("");
+  $("v-buck").innerHTML=`<a class="back" href="#">‹ All bucks</a>
+  <div class="dname" style="--c:${g.c}"><h1>${esc(nameOf(id))}</h1><button class="pencil" data-edit="name" data-id="${id}" aria-label="Rename ${esc(nameOf(id))}">${PENCIL}</button></div>
+  <span class="pill" style="--c:${g.c}">${g.tag} · ${esc(b.age)}</span>
+  <a class="live" href="#s-${id}">👁 Seen live</a>
+  <button class="hero" id="hero" data-i="0" aria-label="Open photos"><img src="img/${ps[0]}.jpg" alt="${esc(nameOf(id))}"></button>
+  ${ps.length>1?`<div class="strip">${ps.map((p,i)=>`<button data-pick="${i}" class="${i?"":"on"}" aria-label="Photo ${i+1}"><img src="img/${p}.jpg" alt="" loading="lazy"></button>`).join("")}</div>`:""}
+  <dl class="quick"><div><dt>Points</dt><dd>${esc(ptsOf(id))}</dd></div><div><dt>Cam sightings</dt><dd>${b.hist.length}</dd></div><div><dt>Seen live</dt><dd>${sn.length}</dd></div></dl>
+  <details open><summary>Last on cam <span class="peek">${esc(last.date||last.time?[last.date,last.time].filter(Boolean).join(" "):"added "+last.added)}</span></summary><div class="dbody">${camRows(last)}</div></details>
+  <details${sn.length?" open":""}><summary>Seen live <span class="peek">${sn.length?"Last: "+esc(fmtWhen(sn[0].when)):"none yet"}</span></summary><div class="dbody">
+    ${sn.length?`<ul class="seenlist">${sn.map(s=>`<li><b>${esc(s.stand)}</b> · ${esc(fmtWhen(s.when))}<div class="sub">${[s.came?"came from "+s.came:"",s.wind?"wind "+s.wind:"",s.by].filter(Boolean).map(esc).join(" · ")}</div>${s.note?`<div class="sub">${esc(s.note)}</div>`:""}</li>`).join("")}</ul>`:`<p class="empty">No one has logged him from a stand yet.</p>`}</div></details>
+  <details><summary>Age: ${esc(b.age)} <span class="peek">Why</span></summary><div class="dbody"><p>${fill(b.note)}</p></div></details>
+  <details><summary>Points: ${esc(ptsOf(id))} <span class="peek">Edit</span></summary><div class="dbody"><p>${LIVE.pts[id]?"Set by the group.":"From the camera photos."}</p><button class="editbtn" data-edit="pts" data-id="${id}">${PENCIL} Edit points</button></div></details>
+  <details><summary>Repeat customer <span class="peek">${fill(b.rep).replace(/^Possible /,"")}</span></summary><div class="dbody"><p>${fill(b.rep)}. Not confirmed.</p></div></details>
+  <details><summary>Cam history <span class="peek">${b.hist.length} sighting${b.hist.length>1?"s":""}</span></summary><div class="dbody">${b.hist.map(camRows).join('<div style="height:6px"></div>')}</div></details>`;
+}
+function gallery(){
+  const all=[];BUCKS.forEach(b=>b.hist.forEach(h=>(h.pics||[]).forEach(p=>all.push({id:b.id,p,added:h.added}))));
+  all.sort((a,b)=>addedKey(b.added)-addedKey(a.added));
+  GALLERY=all;let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Gallery</h1><span class="count">${all.length} photos</span></div>`,cur="";
+  all.forEach((x,i)=>{const l=addedLabel(x.added);if(l!==cur){if(cur)h+=`</div>`;h+=`<div class="day">${l}</div><div class="grid">`;cur=l;}
+    h+=`<button class="tile" data-g="${i}"><img src="img/${x.p}.jpg" alt="${esc(nameOf(x.id))}" loading="lazy"><span>${esc(nameOf(x.id))}</span></button>`;});
+  h+=`</div>`;$("v-gallery").innerHTML=h;
+}
+let GALLERY=[];
+function seenForm(id){const b=byId(id);if(!b){location.hash="";return;}
+  const g=grpOf(b),d=new Date();
+  const compass=k=>`<div class="compass" data-pick-one="${k}">${["NW","N","NE","W","","E","SW","S","SE"].map(x=>x?`<button type="button" data-v="${x}">${x}</button>`:`<span class="mid">${k==="wind"?"wind<br>blowing<br>from":"buck<br>came<br>from"}</span>`).join("")}</div>`;
+  $("v-seen").innerHTML=`<a class="back" href="#b-${id}">‹ Back</a>
+  <div class="whohd" style="--c:${g.c}"><img src="img/${pics(b)[0]}.jpg" alt=""><div><h1>${esc(nameOf(id))}</h1><p>Log a sighting</p></div></div>
+  <form class="form" id="sf" novalidate>
+    <div><div class="flabel">Stand <em>tap one</em></div>
+      ${STANDS.map(s=>`${s.group?`<div class="sgroup">${esc(s.group)}</div>`:""}<div class="chips" data-pick-one="stand">${s.list.map(x=>`<button type="button" class="chip" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>`).join("")}
+    </div>
+    <div><div class="flabel">Time <em>auto-filled</em></div><div class="timebox"><input type="time" id="sf-time" value="${pad(d.getHours())}:${pad(d.getMinutes())}" aria-label="Time seen"><span>Today</span></div></div>
+    <div class="pair"><div><div class="flabel">Wind from</div>${compass("wind")}</div><div><div class="flabel">Buck came from</div>${compass("came")}</div></div>
+    <div><div class="flabel">Your name <em>remembered</em></div><input class="field" id="sf-by" maxlength="30" autocomplete="name" value="${esc(ls.get("bb-by")||"")}" aria-label="Your name"></div>
+    <div id="sf-codewrap"${ls.get("bb-code")?" hidden":""}><div class="flabel">Camp code <em>first time only</em></div><input class="field" id="sf-code" maxlength="40" autocomplete="off" placeholder="Ask Bob" aria-label="Camp code"></div>
+    <div><div class="flabel">Note <em>optional</em></div><textarea class="field" id="sf-note" rows="2" maxlength="200" placeholder="Chasing a doe, 40 yds, no shot…" aria-label="Note"></textarea></div>
+    <p class="err" id="sf-err" role="alert"></p>
+    <button class="save" type="submit" id="sf-save">Save sighting</button>
+  </form>
+  <div class="done" id="sf-done" hidden></div>`;
+}
+
+// ---------- router ----------
+let VIEW="home",VIEWID=null;
+function route(){const h=location.hash.slice(1);let v="home",id=null;
+  if(h==="g")v="gallery";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
+  ["home","buck","gallery","seen"].forEach(k=>$("v-"+k).hidden=k!==v);
+  draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
+}
+function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);}
+addEventListener("hashchange",route);
+addEventListener("scroll",()=>{if(VIEW==="home")try{sessionStorage.setItem("bb-y",String(scrollY))}catch(e){}},{passive:true});
+
+// ---------- live updates ----------
+window.BBApp={
+  live(part,val){LIVE[part]=val;if(part!=="log")ls.set("bb-live",JSON.stringify({names:LIVE.names,pts:LIVE.pts,seen:LIVE.seen}));
+    if(VIEW==="seen")return; // don't wipe a form someone is filling in
+    if(VIEW==="home"){const y=scrollY;home();scrollTo(0,y);}else if(VIEW==="buck"){const open=[...document.querySelectorAll("#v-buck details")].map(d=>d.open);buck(VIEWID);document.querySelectorAll("#v-buck details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i];});}
+    else if(VIEW==="gallery")gallery();
+    if(!$("vw").hidden)vShow(vi);},
+  nameOf,ptsOf,byId,todayKey
+};
+
+// ---------- clicks ----------
+document.addEventListener("click",e=>{
+  const ed=e.target.closest("[data-edit]");if(ed){openEdit(ed.dataset.edit,ed.dataset.id);return;}
+  const un=e.target.closest("[data-undo]");if(un){const x=LIVE.log[+un.dataset.undo];if(x)openEdit(x.field==="pts"?"pts":"name",x.id,x.from);return;}
+  const pk=e.target.closest("[data-pick]");if(pk){const b=byId(VIEWID),p=pics(b)[+pk.dataset.pick];$("hero").dataset.i=pk.dataset.pick;$("hero").querySelector("img").src=`img/${p}.jpg`;document.querySelectorAll(".strip button").forEach(x=>x.classList.toggle("on",x===pk));return;}
+  if(e.target.closest("#hero")){const b=byId(VIEWID);openViewer(pics(b).map(p=>({id:b.id,p})),+$("hero").dataset.i);return;}
+  const t=e.target.closest("[data-g]");if(t){openViewer(GALLERY,+t.dataset.g);return;}
+  const one=e.target.closest("[data-pick-one] button");if(one){const grp=one.parentElement.dataset.pickOne,was=one.classList.contains("on");
+    document.querySelectorAll(`[data-pick-one="${grp}"] button`).forEach(x=>x.classList.remove("on"));
+    if(!was||grp==="stand")one.classList.add("on"); // tap again to clear wind / came-from
+    if($("sf-err"))$("sf-err").textContent="";return;}
+});
+
+// ---------- seen live submit ----------
+document.addEventListener("submit",async e=>{if(e.target.id!=="sf")return;e.preventDefault();
+  const pick=k=>{const o=document.querySelector(`[data-pick-one="${k}"] button.on`);return o?o.dataset.v:"";};
+  const stand=pick("stand"),wind=pick("wind"),came=pick("came"),t=$("sf-time").value,by=$("sf-by").value.trim(),note=$("sf-note").value.trim();
+  const code=ls.get("bb-code")||($("sf-code")?$("sf-code").value.trim():"");const err=$("sf-err");
+  if(!stand){err.textContent="Tap the stand you were in.";return;}
+  if(!t){err.textContent="Set the time you saw him.";$("sf-time").focus();return;}
+  if(!by){err.textContent="Add your name so the group knows who saw him.";$("sf-by").focus();return;}
+  if(!code){$("sf-codewrap").hidden=false;err.textContent="Enter the camp code.";$("sf-code").focus();return;}
+  if(!window.BBFB){err.textContent="No connection yet. Check your signal and try again.";return;}
+  const btn=$("sf-save");btn.disabled=true;btn.textContent="Saving…";
+  const rec={id:VIEWID,stand,when:todayKey()+"T"+t,wind,came,by,note};
+  try{await window.BBFB.seen(rec,code);ls.set("bb-by",by);ls.set("bb-code",code);
+    $("sf").hidden=true;const d=$("sf-done");d.hidden=false;
+    d.innerHTML=`<h2>✓ Saved</h2><div>${esc(nameOf(VIEWID))} · ${esc(stand)} · ${esc(fmtTime(t))}</div><div style="color:var(--muted)">${[came?"Came from "+came:"",wind?"wind "+wind:"",by].filter(Boolean).map(esc).join(" · ")}</div><div style="color:var(--muted);font-size:.9rem">Everyone's board now shows it.</div><a class="back" href="#" style="padding-top:6px">‹ All bucks</a>`;scrollTo(0,0);}
+  catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");$("sf-codewrap").hidden=false;err.textContent="That camp code didn't work. Check it with Bob.";}else err.textContent="Couldn't save. Check your signal and try again.";}
+  finally{btn.disabled=false;btn.textContent="Save sighting";}
+});
+
+// ---------- edit dialog (name / points) ----------
+const dlg=$("dlg"),dv=$("dlg-val"),dby=$("dlg-by"),dcode=$("dlg-code"),dfirst=$("dlg-first"),derr=$("dlg-err"),dsave=$("dlg-save");
+let dKind=null,dId=null,dLast=null;
+function openEdit(kind,id,preset){dKind=kind;dId=id;dLast=document.activeElement;
+  $("dlg-title").textContent=(kind==="name"?"Rename ":"Points for ")+nameOf(id);
+  $("dlg-lbl").textContent=kind==="name"?"New name":"Points (example: 8, 9, 10 or 6 (confirmed))";
+  dv.value=preset||(kind==="name"?nameOf(id):ptsOf(id));dv.maxLength=kind==="name"?24:16;dv.classList.toggle("big",kind==="name");
+  dby.value=ls.get("bb-by")||"";dcode.value=ls.get("bb-code")||"";dfirst.hidden=!!(ls.get("bb-by")&&ls.get("bb-code"));
+  derr.textContent="";dsave.disabled=false;dlg.hidden=false;dv.focus();dv.select();}
+function closeEdit(){dlg.hidden=true;dLast&&dLast.focus();}
+$("dlg-cancel").onclick=closeEdit;dlg.addEventListener("click",e=>{if(e.target===dlg)closeEdit();});
+[dv,dby,dcode].forEach(i=>i.addEventListener("input",()=>derr.textContent=""));
+$("dlg-form").addEventListener("submit",async e=>{e.preventDefault();
+  let v=dv.value.trim().replace(/\s+/g," ");if(dKind==="name")v=v.toUpperCase();
+  const who=dby.value.trim(),cc=dcode.value.trim();
+  if(!v){derr.textContent=dKind==="name"?"Type a name first.":"Type the points.";dv.focus();return;}
+  if(dKind==="name"&&!/^[A-Z0-9 '&.\-]{1,24}$/.test(v)){derr.textContent="Use letters, numbers and spaces only (24 max).";return;}
+  if(dKind==="name"&&BUCKS.some(b=>b.id!==dId&&nameOf(b.id)===v)){derr.textContent=v+" is already taken by another buck.";return;}
+  if(!who){dfirst.hidden=false;derr.textContent="Add your name so the group knows who changed it.";dby.focus();return;}
+  if(!cc){dfirst.hidden=false;derr.textContent="Enter the camp code.";dcode.focus();return;}
+  const old=dKind==="name"?nameOf(dId):ptsOf(dId);if(v===old){closeEdit();return;}
+  if(!window.BBFB){derr.textContent="No connection yet. Check your signal and try again.";return;}
+  dsave.disabled=true;dsave.textContent="Saving…";
+  try{await window.BBFB.edit(dKind,dId,old,v,who,cc);ls.set("bb-by",who);ls.set("bb-code",cc);closeEdit();toast(dKind==="name"?`${old} is now ${v}`:`${nameOf(dId)} points: ${v}`);}
+  catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");dfirst.hidden=false;derr.textContent="That camp code didn't work. Check it with Bob.";dcode.focus();}else derr.textContent="Couldn't save. Check your signal and try again.";}
+  finally{dsave.disabled=false;dsave.textContent="Save";}
+});
+let tT=null;function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(tT);tT=setTimeout(()=>el.hidden=true,3000);}
+
+// ---------- photo viewer ----------
+const vw=$("vw"),vimg=$("vw-img"),stage=$("vw-stage"),vmsg=$("vw-msg");
+let vlist=[],vi=0,sc=1,tx=0,ty=0,vLast=null;
+function openViewer(list,i){vLast=document.activeElement;vlist=list;vw.hidden=false;document.documentElement.classList.add("locked");vShow(i);$("vw-close").focus();}
+function closeViewer(){vw.hidden=true;vmsg.hidden=true;document.documentElement.classList.remove("locked");vLast&&vLast.focus();}
+function vShow(i){vi=i;const x=vlist[i];vimg.src=`img/${x.p}.jpg`;vimg.alt=nameOf(x.id);$("vw-name").textContent=nameOf(x.id);
+  $("vw-count").textContent=vlist.length>1?`${i+1} of ${vlist.length}`:"";$("vw-prev").disabled=i===0;$("vw-next").disabled=i===vlist.length-1;reset();}
+function vStep(d){const j=vi+d;if(j<0||j>=vlist.length){vmsg.textContent=d>0?"Last photo":"First photo";vmsg.hidden=false;stage.style.setProperty("--nx",(d>0?-24:24)+"px");stage.classList.remove("bump");void stage.offsetWidth;stage.classList.add("bump");setTimeout(()=>{vmsg.hidden=true;stage.classList.remove("bump");},1100);return;}vmsg.hidden=true;vShow(j);}
+function clampPan(){const r=stage.getBoundingClientRect(),w=vimg.offsetWidth*sc,h=vimg.offsetHeight*sc,mx=Math.max(0,(w-r.width)/2),my=Math.max(0,(h-r.height)/2);tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));}
+function apply(){if(sc<=1){sc=1;tx=0;ty=0;}clampPan();vimg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;$("vw-zl").textContent=Math.round(sc*100)+"%";stage.classList.toggle("zoomed",sc>1);}
+function reset(){sc=1;tx=0;ty=0;apply();}
+function zoomAt(ns,cx,cy){ns=Math.min(6,Math.max(1,ns));const r=stage.getBoundingClientRect(),px=cx-(r.left+r.width/2),py=cy-(r.top+r.height/2);tx=px-(px-tx)*ns/sc;ty=py-(py-ty)*ns/sc;sc=ns;apply();}
+const zc=f=>{const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+r.width/2,r.top+r.height/2);};
+$("vw-close").onclick=closeViewer;$("vw-prev").onclick=()=>vStep(-1);$("vw-next").onclick=()=>vStep(1);
+$("vw-in").onclick=()=>zc(1.5);$("vw-out").onclick=()=>zc(1/1.5);$("vw-fit").onclick=reset;
+document.addEventListener("keydown",e=>{if(!dlg.hidden&&e.key==="Escape"){closeEdit();return;}if(vw.hidden)return;
+  if(e.key==="Escape")closeViewer();if(e.key==="ArrowRight"&&sc===1)vStep(1);if(e.key==="ArrowLeft"&&sc===1)vStep(-1);});
+stage.addEventListener("wheel",e=>{e.preventDefault();zoomAt(sc*(e.deltaY<0?1.2:1/1.2),e.clientX,e.clientY);},{passive:false});
+stage.addEventListener("dblclick",e=>{sc>1?reset():zoomAt(2.5,e.clientX,e.clientY);});
+let drag=null;
+stage.addEventListener("mousedown",e=>{if(sc<=1)return;drag={x:e.clientX,y:e.clientY,tx,ty};e.preventDefault();});
+addEventListener("mousemove",e=>{if(!drag)return;tx=drag.tx+e.clientX-drag.x;ty=drag.ty+e.clientY-drag.y;apply();});
+addEventListener("mouseup",()=>drag=null);
+let t0=null,pinch=null,lastTap=0;const dist=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+stage.addEventListener("touchstart",e=>{if(e.touches.length===2){pinch={d:dist(e.touches[0],e.touches[1]),s:sc};t0=null;}else if(e.touches.length===1){const t=e.touches[0];t0={x:t.clientX,y:t.clientY,tx,ty,time:Date.now()};}},{passive:true});
+stage.addEventListener("touchmove",e=>{e.preventDefault();if(pinch&&e.touches.length===2){const cx=(e.touches[0].clientX+e.touches[1].clientX)/2,cy=(e.touches[0].clientY+e.touches[1].clientY)/2;zoomAt(pinch.s*dist(e.touches[0],e.touches[1])/pinch.d,cx,cy);}
+  else if(t0&&e.touches.length===1&&sc>1){const t=e.touches[0];tx=t0.tx+t.clientX-t0.x;ty=t0.ty+t.clientY-t0.y;apply();}},{passive:false});
+stage.addEventListener("touchend",e=>{if(pinch&&e.touches.length<2){pinch=null;return;}if(!t0)return;const t=e.changedTouches[0],dx=t.clientX-t0.x,dy=t.clientY-t0.y,now=Date.now();
+  if(Math.abs(dx)<10&&Math.abs(dy)<10&&now-t0.time<250){if(now-lastTap<300){sc>1?reset():zoomAt(2.5,t.clientX,t.clientY);lastTap=0;}else lastTap=now;}
+  else if(sc===1&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))vStep(dx<0?1:-1);t0=null;});
+addEventListener("resize",()=>{if(!vw.hidden)apply();});
+
+route();
+})();
+</script>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getFirestore,collection,doc,onSnapshot,writeBatch,serverTimestamp,query,orderBy,limit} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const app=initializeApp({apiKey:"AIzaSyA_oLJ8aZzoIRA3ZzO2EIIgBnTHRI_S_go",authDomain:"hlsc-buck-board.firebaseapp.com",projectId:"hlsc-buck-board",storageBucket:"hlsc-buck-board.firebasestorage.app",messagingSenderId:"792039432571",appId:"1:792039432571:web:3cda7e6c3b4c0cbe5d9dde"});
-const db=getFirestore(app);
-const BB=window.BB;
-const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
-// live names
-onSnapshot(collection(db,"names"),snap=>{const live={};snap.forEach(d=>{const n=d.data().name;if(n)live[d.id]=n;});BB.applyNames(live);ls.set("bb-names",JSON.stringify(Object.assign({},BB.defaults,live)));},()=>{});
-// history
-const hist=document.getElementById("hist"),hl=document.getElementById("hist-list");
-onSnapshot(query(collection(db,"log"),orderBy("at","desc"),limit(20)),snap=>{
-  hl.innerHTML="";snap.forEach(d=>{const x=d.data();const li=document.createElement("li");
-    const when=x.at&&x.at.toDate?x.at.toDate().toLocaleDateString(undefined,{month:"numeric",day:"numeric"}):"";
-    li.innerHTML=`<span><b>${BB.esc(x.from)}</b> → <b>${BB.esc(x.to)}</b> · ${BB.esc(x.by||"someone")}${when?" · "+when:""}</span>`;
-    const u=document.createElement("button");u.textContent="Undo";u.onclick=()=>BB.openRename(x.id,x.from);li.appendChild(u);hl.appendChild(li);});
-  hist.hidden=snap.empty;},()=>{});
-// rename dialog
-const rn=document.getElementById("rn"),f=document.getElementById("rn-form"),nm=document.getElementById("rn-name"),by=document.getElementById("rn-by"),code=document.getElementById("rn-code"),first=document.getElementById("rn-first"),err=document.getElementById("rn-err"),save=document.getElementById("rn-save"),title=document.getElementById("rn-title");
-let cur=null,lastFocus=null;
-function openRename(id,preset){cur=id;lastFocus=document.activeElement;title.textContent="Rename "+BB.nameOf(id);nm.value=preset||BB.nameOf(id);
-  by.value=ls.get("bb-by")||"";code.value=ls.get("bb-code")||"";first.hidden=!!(ls.get("bb-by")&&ls.get("bb-code"));err.textContent="";save.disabled=false;rn.hidden=false;nm.focus();nm.select();}
-function closeRename(){rn.hidden=true;lastFocus&&lastFocus.focus();}
-BB.openRename=openRename;window.bbRename=id=>openRename(id);
-document.getElementById("rn-cancel").onclick=closeRename;
-rn.addEventListener("click",e=>{if(e.target===rn)closeRename();});
-document.addEventListener("keydown",e=>{if(!rn.hidden&&e.key==="Escape")closeRename();});
-[nm,by,code].forEach(i=>i.addEventListener("input",()=>err.textContent=""));
-f.addEventListener("submit",async e=>{e.preventDefault();
-  const name=nm.value.trim().replace(/\s+/g," ").toUpperCase(),who=by.value.trim(),cc=code.value.trim();
-  if(!name){err.textContent="Type a name first.";nm.focus();return;}
-  if(!/^[A-Z0-9 '&.\-]{1,24}$/.test(name)){err.textContent="Use letters, numbers and spaces only (24 max).";nm.focus();return;}
-  if(!who){first.hidden=false;err.textContent="Add your name so the group knows who renamed it.";by.focus();return;}
-  if(!cc){first.hidden=false;err.textContent="Enter the camp code.";code.focus();return;}
-  const old=BB.nameOf(cur);if(name===old){closeRename();return;}
-  if(Object.entries(BB.current()).some(([k,v])=>k!==cur&&v===name)){err.textContent=name+" is already taken by another buck.";return;}
-  save.disabled=true;save.textContent="Saving…";
-  try{const ref=doc(collection(db,"renames"));const b=writeBatch(db);
-    b.set(ref,{code:cc});
-    b.set(doc(db,"names",cur),{name,by:who,at:serverTimestamp(),ref:ref.id});
-    b.set(doc(db,"log",ref.id),{id:cur,from:old,to:name,by:who,at:serverTimestamp()});
-    await b.commit();ls.set("bb-by",who);ls.set("bb-code",cc);closeRename();BB.toast(old+" is now "+name);}
-  catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");first.hidden=false;err.textContent="That camp code didn't work. Check it with Bob.";code.focus();}
-    else err.textContent="Couldn't save. Check your signal and try again.";}
-  finally{save.disabled=false;save.textContent="Save name";}
-});
+const db=getFirestore(app),A=window.BBApp;
+onSnapshot(collection(db,"names"),s=>{const o={};s.forEach(d=>{if(d.data().name)o[d.id]=d.data().name;});A.live("names",o);},()=>{});
+onSnapshot(collection(db,"points"),s=>{const o={};s.forEach(d=>{if(d.data().pts)o[d.id]=d.data().pts;});A.live("pts",o);},()=>{});
+onSnapshot(collection(db,"seen"),s=>{const o={};s.forEach(d=>{const x=d.data();(o[x.id]=o[x.id]||[]).push(x);});A.live("seen",o);},()=>{});
+onSnapshot(query(collection(db,"log"),orderBy("at","desc"),limit(15)),s=>{const l=[];s.forEach(d=>{const x=d.data();l.push({id:x.id,field:x.field||"name",from:x.from,to:x.to,by:x.by,day:x.at&&x.at.toDate?x.at.toDate().toLocaleDateString(undefined,{month:"numeric",day:"numeric"}):""});});A.live("log",l);},()=>{});
+window.BBFB={
+  async edit(kind,id,from,to,by,code){const ref=doc(collection(db,"renames"));const b=writeBatch(db);
+    b.set(ref,{code});
+    if(kind==="name")b.set(doc(db,"names",id),{name:to,by,at:serverTimestamp(),ref:ref.id});
+    else b.set(doc(db,"points",id),{pts:to,by,at:serverTimestamp(),ref:ref.id});
+    b.set(doc(db,"log",ref.id),{id,field:kind,from,to,by,at:serverTimestamp()});
+    await b.commit();},
+  async seen(r,code){const ref=doc(collection(db,"renames"));const b=writeBatch(db);
+    b.set(ref,{code});
+    b.set(doc(db,"seen",ref.id),{id:r.id,stand:r.stand,when:r.when,wind:r.wind,came:r.came,by:r.by,note:r.note,at:serverTimestamp()});
+    await b.commit();}
+};
 </script>
 <script>
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
