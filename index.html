@@ -304,7 +304,16 @@ function seenForm(id){const b=byId(id);if(!b){location.hash="";return;}
 
 // ---------- router ----------
 let VIEW="home",VIEWID=null;
-function route(){const h=location.hash.slice(1);let v="home",id=null;
+// Each page entry remembers which page came before it, so the in-app "‹ Back" links step back
+// through history instead of stacking new pages (which made the phone's back button loop).
+let navI=0,navHash=null;
+function markNav(){const st=history.state;
+  if(st&&typeof st.i==="number"){navI=st.i;}
+  else{const i=navHash===null?0:navI+1;try{history.replaceState({i,prev:navHash},"")}catch(e){}navI=i;}
+  navHash=location.hash||"#";}
+function goBackTo(target){const st=history.state;target=target||"#";
+  if(st&&st.i>0&&(st.prev||"#")===target)history.back();else location.replace(target);}
+function route(){markNav();const h=location.hash.slice(1);let v="home",id=null;
   if(h==="g")v="gallery";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
   if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
@@ -327,6 +336,7 @@ window.BBApp={
 
 // ---------- clicks ----------
 document.addEventListener("click",e=>{
+  const bk=e.target.closest("a.back");if(bk){e.preventDefault();goBackTo(bk.getAttribute("href"));return;}
   const rm=e.target.closest("[data-delseen]");if(rm){
     if(!rm.classList.contains("armed")){rm.classList.add("armed");rm.textContent="Tap again to remove";clearTimeout(rm._t);rm._t=setTimeout(()=>{rm.classList.remove("armed");rm.textContent="🗑 Remove";},4000);return;}
     const sv=(LIVE.seen[VIEWID]||[]).find(x=>x._id===rm.dataset.delseen);if(!sv)return;
@@ -443,6 +453,7 @@ stage.addEventListener("touchend",e=>{if(pinch&&e.touches.length<2){pinch=null;r
   else if(sc===1&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))vStep(dx<0?1:-1);t0=null;});
 addEventListener("resize",()=>{if(!vw.hidden)apply();});
 
+if(history.state&&history.state.ov)history.back(); // reloaded with a photo/edit entry on top
 route();
 })();
 </script>
