@@ -93,7 +93,7 @@ footer{font-size:.85rem;color:var(--muted)}
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
   <div class="lb-top">
     <h3 id="lb-title"></h3>
-    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-close">Close</button></div>
+    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-pic" hidden>Photo 1/2</button><button id="lb-close">Close</button></div>
   </div>
   <div class="lb-img" id="lb-stage"><img id="lb-img" alt="" draggable="false"><span class="hint" id="lb-hint">Pinch or double-tap to zoom</span></div>
   <div class="lb-tools">
@@ -115,6 +115,7 @@ const BUCKS=[
  {id:"I",n:1,g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible K, D/G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
  {id:"D",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely G, possible I/A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
  {id:"G",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely D, possible J",note:"Low-res, facing camera. Tall 8 with good G2s. If G and J are the same deer, G is likely closer to 3."},
+ {id:"O",n:2,pics:["O","O-2"],g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible I, L",note:"Two photos, walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it."},
  {id:"J",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
  {id:"A",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible D/G, N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
  {id:"F",n:1,g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
@@ -136,7 +137,7 @@ for(const g of GROUPS){
   const cards=s.querySelector(".cards");
   for(const b of list){
     const el=document.createElement("article"); el.className="card"; el.style.setProperty("--c",g.c);
-    el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photo of buck ${b.id}"><img src="img/${b.id}.jpg" alt="Buck ${b.id}" loading="lazy"><span class="tag">${b.id}</span></button>
+    el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photos of buck ${b.id}"><img src="img/${b.id}.jpg" alt="Buck ${b.id}" loading="lazy"><span class="tag">${b.id}</span></button>
     <div class="info">
       <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div></dl>
       <div class="repeat">Repeat customer: <b>${b.rep}</b></div>
@@ -158,13 +159,16 @@ function zoomAt(ns,cx,cy){ns=Math.min(MAX,Math.max(1,ns));const r=stage.getBound
   const px=cx-(r.left+r.width/2),py=cy-(r.top+r.height/2);tx=px-(px-tx)*ns/sc;ty=py-(py-ty)*ns/sc;sc=ns;apply();hint.hidden=true;}
 function zoomCenter(f){const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+r.width/2,r.top+r.height/2);}
 function resetZoom(){sc=1;tx=0;ty=0;apply();}
-function show(id){const b=BUCKS.find(x=>x.id===id);cur=id;resetZoom();lbImg.src=`img/${id}.jpg`;lbImg.alt=`Buck ${id}`;
+let pic=0;const picBtn=document.getElementById("lb-pic");
+function pics(b){return b.pics||[b.id];}
+function show(id,p=0){const b=BUCKS.find(x=>x.id===id);cur=id;pic=p;resetZoom();const ps=pics(b);lbImg.src=`img/${ps[pic]}.jpg`;picBtn.hidden=ps.length<2;picBtn.textContent=`Photo ${pic+1}/${ps.length}`;lbImg.alt=`Buck ${id}`;
   lbT.textContent=`Buck ${id} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;lbC.textContent=`${b.dn}. Repeat customer: ${b.rep}. ${b.note}`;}
 function open(id){last=document.activeElement;lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-close").focus();}
 function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;last&&last.focus();}
 function step(d){const i=order.indexOf(cur);show(order[(i+d+order.length)%order.length]);}
 root.addEventListener("click",e=>{const t=e.target.closest(".thumb");if(t)open(t.dataset.id);});
 document.getElementById("lb-close").onclick=close;
+picBtn.onclick=()=>{const b=BUCKS.find(x=>x.id===cur);show(cur,(pic+1)%pics(b).length);};
 document.getElementById("lb-prev").onclick=()=>step(-1);
 document.getElementById("lb-next").onclick=()=>step(1);
 document.getElementById("z-in").onclick=()=>zoomCenter(1.5);
