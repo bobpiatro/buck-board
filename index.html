@@ -111,21 +111,21 @@ const GROUPS=[
  {key:"unk",title:"Unknown",sub:"Need a better photo",c:"var(--unk)"}
 ];
 const BUCKS=[
- {id:"K",n:1,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible I",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
- {id:"I",n:1,g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible K, D/G",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
- {id:"D",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely G, possible I/A",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
- {id:"G",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely D, possible J",note:"Low-res, facing camera. Tall 8 with good G2s. If G and J are the same deer, G is likely closer to 3."},
- {id:"O",n:1,pics:["O","O-2"],g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible I, L",note:"Two photos from one sighting, walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it."},
- {id:"J",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible G",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
- {id:"A",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible D/G, N",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
- {id:"F",n:1,g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
- {id:"H",n:1,g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
- {id:"M",n:1,g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
- {id:"N",n:1,g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible A",note:"At distance. Modest 8 near ear width, moderate body."},
- {id:"L",n:1,g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
- {id:"E",n:1,g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible C",note:"Small, blurry rack. Could be a 2.5."},
- {id:"C",n:1,g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible E",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
- {id:"B",n:1,g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
+ {id:"K",num:11,entered:"10/17/26",cam:"Spypoint Flex-M (no date shown)",n:1,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible #9",note:"Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size. Spypoint Flex-M."},
+ {id:"I",num:9,entered:"10/17/26",cam:"5:47 PM · 45°F (date cut off)",n:1,g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible #11, #4/#7",note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread."},
+ {id:"D",num:4,entered:"10/17/26",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely #7, possible #9/#1",note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack."},
+ {id:"G",num:7,entered:"10/17/26",n:1,g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely #4, possible #10",note:"Low-res, facing camera. Tall 8 with good G2s. If #7 and #10 are the same deer, #7 is likely closer to 3."},
+ {id:"O",num:15,entered:"10/18/26",n:1,pics:["O","O-2"],g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible #9, #12",note:"Two photos from one sighting, walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it."},
+ {id:"J",num:10,entered:"10/17/26",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible #7",note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline."},
+ {id:"A",num:1,entered:"10/17/26",cam:"10/03/26 · 5:13 AM · 41°F",n:1,g:"mid",age:"2.5–3.5",pts:"8",dn:"Night",rep:"Possible #4/#7, #14",note:"10/03/2026 5:13 AM, 41°F. Profile hides the spread. Tall G2/G3s, but neck and body don't say mature yet. Borderline.",stamp:"10/03/2026 · 05:13 AM · 41°F"},
+ {id:"F",num:6,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"6–7",dn:"Day",rep:"No match",note:"Heavy compression. Uneven rack, one side mostly beam. Neck not swelled."},
+ {id:"H",num:8,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Running, bow in frame. Straight, tight belly line and an athletic frame. Rack too blurry to count."},
+ {id:"M",num:13,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
+ {id:"N",num:14,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible #1",note:"At distance. Modest 8 near ear width, moderate body."},
+ {id:"L",num:12,entered:"10/17/26",n:1,g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
+ {id:"E",num:5,entered:"10/17/26",n:1,g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible #3",note:"Small, blurry rack. Could be a 2.5."},
+ {id:"C",num:3,entered:"10/17/26",n:1,g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible #5",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
+ {id:"B",num:2,entered:"10/17/26",n:1,g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
 ];
 const order=BUCKS.map(b=>b.id);
 const root=document.getElementById("groups");
@@ -137,9 +137,11 @@ for(const g of GROUPS){
   const cards=s.querySelector(".cards");
   for(const b of list){
     const el=document.createElement("article"); el.className="card"; el.style.setProperty("--c",g.c);
-    el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photos of buck ${b.id}"><img src="img/${b.id}.jpg" alt="Buck ${b.id}" loading="lazy"><span class="tag">${b.id}</span></button>
+    el.innerHTML=`<button class="thumb" data-id="${b.id}" aria-label="Open photos of buck ${b.num}"><img src="img/${b.id}.jpg" alt="Buck ${b.num}" loading="lazy"><span class="tag">#${b.num}</span></button>
     <div class="info">
-      <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div></dl>
+      <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div><div><dt>Entered</dt><dd>${b.entered}</dd></div></dl>
+      ${b.cam?`<div class="stamp">Camera: ${b.cam}</div>`:""}
+      <div class="stamp">Was buck ${b.id}</div>
       <div class="repeat">Repeat customer: <b>${b.rep}</b></div>
       <p class="note">${b.note}</p>
     </div>`;
@@ -161,8 +163,8 @@ function zoomCenter(f){const r=stage.getBoundingClientRect();zoomAt(sc*f,r.left+
 function resetZoom(){sc=1;tx=0;ty=0;apply();}
 let pic=0;const picBtn=document.getElementById("lb-pic");
 function pics(b){return b.pics||[b.id];}
-function show(id,p=0){const b=BUCKS.find(x=>x.id===id);cur=id;pic=p;resetZoom();const ps=pics(b);lbImg.src=`img/${ps[pic]}.jpg`;picBtn.hidden=ps.length<2;picBtn.textContent=`Photo ${pic+1}/${ps.length}`;lbImg.alt=`Buck ${id}`;
-  lbT.textContent=`Buck ${id} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;lbC.textContent=`${b.dn}. Repeat customer: ${b.rep}. ${b.note}`;}
+function show(id,p=0){const b=BUCKS.find(x=>x.id===id);cur=id;pic=p;resetZoom();const ps=pics(b);lbImg.src=`img/${ps[pic]}.jpg`;picBtn.hidden=ps.length<2;picBtn.textContent=`Photo ${pic+1}/${ps.length}`;lbImg.alt=`Buck ${b.num}`;
+  lbT.textContent=`#${b.num} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;lbC.textContent=`${b.dn}. Entered ${b.entered}.${b.cam?" Camera: "+b.cam+".":""} Repeat customer: ${b.rep}. ${b.note}`;}
 function open(id){last=document.activeElement;lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-close").focus();}
 function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;last&&last.focus();}
 function step(d){const i=order.indexOf(cur);show(order[(i+d+order.length)%order.length]);}
