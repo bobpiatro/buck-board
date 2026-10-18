@@ -140,6 +140,7 @@ const BUCKS=[
  {id:"M",num:13,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines."},
  {id:"N",num:14,entered:"10/17/26",n:1,g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible #1",note:"At distance. Modest 8 near ear width, moderate body."},
  {id:"L",num:12,entered:"10/17/26",n:1,g:"mid",age:"2.5?",pts:"8 (your call)",dn:"Day",rep:"No match",note:"Rack barely readable. Moderate body. Age is a guess."},
+ {id:"P",num:16,entered:"10/18/26",cam:"Moultrie · Little Tobin Clarkinski · 10/18/26 · 9:02 AM · 47°F",n:1,pics:["P","P-2"],g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"Possible #10, #3",note:"Two photos from one sighting. Straight belly, long legs, neck not swelled. Narrow rack inside the ears with tall G2s; brows short or hidden. If this is #10, #10 is likely a 2.5 too."},
  {id:"E",num:5,entered:"10/17/26",n:1,g:"young",age:"1.5–2.5",pts:"4–6",dn:"Night",rep:"Possible #3",note:"Small, blurry rack. Could be a 2.5."},
  {id:"C",num:3,entered:"10/17/26",n:1,g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible #5",note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set."},
  {id:"B",num:2,entered:"10/17/26",n:1,g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",note:"Motion blur in the ferns. Different spot from the other cameras."}
@@ -158,7 +159,7 @@ for(const g of GROUPS){
     <div class="info">
       <dl class="stats"><div><dt>Age</dt><dd>${b.age}</dd></div><div><dt>Points</dt><dd>${b.pts}</dd></div><div><dt>Day/Night</dt><dd>${b.dn}</dd></div><div><dt>Sightings</dt><dd>${b.n}</dd></div><div><dt>Entered</dt><dd>${b.entered}</dd></div></dl>
       ${b.cam?`<div class="stamp">Camera: ${b.cam}</div>`:""}
-      <div class="stamp">Was buck ${b.id}</div>
+      ${b.num<=15?`<div class="stamp">Was buck ${b.id}</div>`:""}
       <div class="repeat">Repeat customer: <b>${b.rep}</b></div>
       <p class="note">${b.note}</p>
     </div>`;
