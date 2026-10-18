@@ -24,7 +24,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",pics:["G"]}]},
  {id:"O",name:"OLD MAN",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible @I, @L",
   note:"Walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it.",
-  hist:[{added:"10/18/26",pics:["O","O-2"]}]},
+  hist:[{added:"10/18/26",date:"10/17/26",time:"6:22 PM",temp:"57°F",cam:"Mikey Sunshine (Moultrie)",pics:["O","O-2"]}]},
  {id:"H",name:"DASH",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"No match",
   note:"Video from School House shows him broadside: deep chest, heavy through the middle, thick neck running into the shoulders. Belly still fairly flat, so not old, but past 2.5. Bob would shoot him. Rack looks modest for the body; too far to count.",
   hist:[{added:"10/17/26",date:"10/16/26",time:"6:51 PM",temp:"48°F",cam:"School House (Moultrie)",pics:["H-2","H-5","H-3","H","H-4"]}]},
