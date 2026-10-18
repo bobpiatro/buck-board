@@ -15,7 +15,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",date:"10/14/26",time:"5:17 AM",temp:"46°F",cam:"Spypoint Flex-M",pics:["K"]}]},
  {id:"I",name:"BIG RED",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @K, @D/@G",
   note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread.",
-  hist:[{added:"10/17/26",date:"10/16/26",time:"5:47 PM",temp:"45°F",cam:"Spypoint Flex-M",pics:["I"]}]},
+  hist:[{added:"10/17/26",date:"10/16/26",time:"5:47 PM",temp:"45°F",cam:"Spypoint Flex-M + Mikey Sunshine (Moultrie)",pics:["I","I-2"]}]},
  {id:"D",name:"NIGHT SHIFT",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely @G, possible @I/@A",
   note:"Facing camera. Clean 8 with brows, G2s and G3s. Spread at or just outside the ears. Best measurable rack.",
   hist:[{added:"10/17/26",date:"10/17/26",time:"4:16 AM",temp:"34°F",cam:"School House (Moultrie)",pics:["D"]},{added:"10/18/26",date:"10/07/26",time:"7:28 PM",temp:"57°F",cam:"Spypoint Flex-M",pics:["D-2","D-3"]}]},
