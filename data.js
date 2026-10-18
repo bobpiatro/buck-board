@@ -21,7 +21,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",date:"10/17/26",time:"4:16 AM",temp:"34°F",cam:"School House (Moultrie)",pics:["D"]},{added:"10/18/26",date:"10/07/26",time:"7:28 PM",temp:"57°F",cam:"Spypoint Flex-M",pics:["D-2","D-3"]}]},
  {id:"G",name:"TALL BOY",g:"shoot",age:"3.5",pts:"8",dn:"Day",rep:"Likely @D, possible @J",
   note:"Low-res, facing camera. Tall 8 with good G2s. If @G and @J are the same deer, @G is likely closer to 3.",
-  hist:[{added:"10/17/26",pics:["G"]}]},
+  hist:[{added:"10/17/26",date:"10/16/26",time:"6:41 PM",temp:"48°F",cam:"Big Joe Webb (Moultrie)",pics:["G"]}]},
  {id:"O",name:"OLD MAN",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"Possible @I, @L",
   note:"Walking both directions with head down. Deep chest, belly starting to drop, neck filling out. Rack blends into the woods, so no count. Borderline 3.5: a head-up shot would settle it.",
   hist:[{added:"10/18/26",date:"10/17/26",time:"6:22 PM",temp:"57°F",cam:"Mikey Sunshine (Moultrie)",pics:["O","O-2"]}]},
