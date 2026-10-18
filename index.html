@@ -58,10 +58,24 @@ section h2 small{font-family:var(--body);font-size:.85rem;letter-spacing:0;text-
 .stamp{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
 footer{font-size:.85rem;color:var(--muted)}
 /* lightbox */
-.lb{position:fixed;inset:0;background:rgba(10,12,9,.94);z-index:20;display:flex;flex-direction:column;
+html.viewing,html.viewing body{overflow:hidden;overscroll-behavior:none}
+.lb{position:fixed;inset:0;background:#000;overscroll-behavior:contain;z-index:20;display:flex;flex-direction:column;
   padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));color:#eef0e8}
+.lb-mode{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:calc(-12px - env(safe-area-inset-top,0px)) calc(-1 * max(12px,env(safe-area-inset-right,0px))) 10px calc(-1 * max(12px,env(safe-area-inset-left,0px)));padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px));background:#f07a35;color:#140c05}
+.lb-mode .lbl,.lb-mode .count{white-space:nowrap}
+.lb-mode .lbl{font:700 1.05rem var(--display);letter-spacing:.12em;text-transform:uppercase}
+.lb-mode .count{font:500 .85rem var(--mono);font-variant-numeric:tabular-nums}
+.lb .lb-x{background:#140c05;color:#fff;border:0;font-size:1rem;padding:8px 14px}
+.lb-dots{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:6px 0 2px}
+.lb-dots i{width:7px;height:7px;border-radius:50%;background:#4a5541}
+.lb-dots i.on{background:#f07a35;transform:scale(1.35)}
+.lb button:disabled{opacity:.3;cursor:default}
+.lb-end{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);border:1px solid #f07a35;color:#fff;font:700 1.1rem var(--display);letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;border-radius:6px;pointer-events:none}
+@keyframes nudge{0%,100%{transform:translateX(0)}30%{transform:translateX(var(--nx))}60%{transform:translateX(calc(var(--nx) * -.4))}}
+.lb-img.bump img{animation:nudge .35s ease}
+@media (prefers-reduced-motion:reduce){.lb-img.bump img{animation:none}}
 .lb-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.lb-top h3{font-family:var(--display);font-size:1.6rem;margin:0;text-transform:uppercase}
+.lb-top h3{font-family:var(--display);font-size:clamp(1.1rem,4.6vw,1.6rem);min-width:0;line-height:1.15;margin:0;text-transform:uppercase}
 .lb button{background:#2a3125;color:#eef0e8;border:1px solid #4a5541;border-radius:4px;font:600 .95rem var(--body);padding:8px 14px;cursor:pointer}
 .lb button:focus-visible{outline:3px solid #f07a35}
 .lb-img{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;margin:10px 0;overflow:hidden;touch-action:none;cursor:zoom-in;position:relative}
@@ -71,7 +85,8 @@ footer{font-size:.85rem;color:var(--muted)}
 .lb-img .hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font:500 .72rem var(--mono);background:rgba(0,0,0,.55);padding:3px 8px;border-radius:99px;pointer-events:none;white-space:nowrap}
 .lb-cap{font-size:.92rem;max-width:65ch;margin:0 auto}
 .lb.capoff .lb-cap{display:none}
-.lb-nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.lb-nav{display:flex;gap:6px;flex:none}
+.lb-nav button{font-size:1.3rem;padding:6px 16px}
 .lb-tools{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
 .lb-tools .zl{font:500 .85rem var(--mono);min-width:4.5ch;text-align:center;align-self:center;font-variant-numeric:tabular-nums}
 @media (max-width:420px){.card{grid-template-columns:92px 1fr}.thumb{width:92px}}
@@ -91,11 +106,13 @@ footer{font-size:.85rem;color:var(--muted)}
 </div>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
+  <div class="lb-mode"><span class="lbl">Photo viewer</span><span class="count" id="lb-count"></span><button class="lb-x" id="lb-x" aria-label="Close viewer">✕ Close</button></div>
   <div class="lb-top">
     <h3 id="lb-title"></h3>
-    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-pic" hidden>Photo 1/2</button><button id="lb-close">Close</button></div>
+    <div class="lb-nav"><button id="lb-prev" aria-label="Previous buck">‹</button><button id="lb-next" aria-label="Next buck">›</button><button id="lb-pic" hidden>Photo 1/2</button><button id="lb-close" hidden>Close</button></div>
   </div>
-  <div class="lb-img" id="lb-stage"><img id="lb-img" alt="" draggable="false"><span class="hint" id="lb-hint">Pinch or double-tap to zoom</span></div>
+  <div class="lb-img" id="lb-stage"><img id="lb-img" alt="" draggable="false"><span class="hint" id="lb-hint">Swipe for next buck · pinch to zoom</span><span class="lb-end" id="lb-end" hidden></span></div>
+  <div class="lb-dots" id="lb-dots" aria-hidden="true"></div>
   <div class="lb-tools">
     <button id="z-out" aria-label="Zoom out">−</button><span class="zl" id="z-lvl">100%</span><button id="z-in" aria-label="Zoom in">+</button>
     <button id="z-reset">Fit</button><button id="z-cap">Hide notes</button><button id="z-fs">Full screen</button>
@@ -164,12 +181,19 @@ function resetZoom(){sc=1;tx=0;ty=0;apply();}
 let pic=0;const picBtn=document.getElementById("lb-pic");
 function pics(b){return b.pics||[b.id];}
 function show(id,p=0){const b=BUCKS.find(x=>x.id===id);cur=id;pic=p;resetZoom();const ps=pics(b);lbImg.src=`img/${ps[pic]}.jpg`;picBtn.hidden=ps.length<2;picBtn.textContent=`Photo ${pic+1}/${ps.length}`;lbImg.alt=`Buck ${b.num}`;
-  lbT.textContent=`#${b.num} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;lbC.textContent=`${b.dn}. Entered ${b.entered}.${b.cam?" Camera: "+b.cam+".":""} Repeat customer: ${b.rep}. ${b.note}`;}
-function open(id){last=document.activeElement;lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-close").focus();}
-function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;last&&last.focus();}
-function step(d){const i=order.indexOf(cur);show(order[(i+d+order.length)%order.length]);}
+  lbT.textContent=`#${b.num} · ${b.age} · ${b.pts} pts · seen ${b.n}×`;navState();lbC.textContent=`${b.dn}. Entered ${b.entered}.${b.cam?" Camera: "+b.cam+".":""} Repeat customer: ${b.rep}. ${b.note}`;}
+const cnt=document.getElementById("lb-count"),dots=document.getElementById("lb-dots"),endMsg=document.getElementById("lb-end"),prevB=document.getElementById("lb-prev"),nextB=document.getElementById("lb-next");
+dots.innerHTML=order.map(()=>"<i></i>").join("");
+function navState(){const i=order.indexOf(cur);cnt.textContent=`Buck ${i+1} of ${order.length}`;prevB.disabled=i===0;nextB.disabled=i===order.length-1;
+  [...dots.children].forEach((d,k)=>d.classList.toggle("on",k===i));}
+let endT=null;
+function atEnd(d){endMsg.textContent=d>0?"Last buck":"First buck";endMsg.hidden=false;stage.style.setProperty("--nx",(d>0?-24:24)+"px");
+  stage.classList.remove("bump");void stage.offsetWidth;stage.classList.add("bump");clearTimeout(endT);endT=setTimeout(()=>{endMsg.hidden=true;stage.classList.remove("bump");},1100);}
+function open(id){last=document.activeElement;document.documentElement.classList.add("viewing");lb.hidden=false;show(id);hint.hidden=false;document.getElementById("lb-x").focus();}
+function close(){if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});}lb.hidden=true;endMsg.hidden=true;document.documentElement.classList.remove("viewing");last&&last.focus();}
+function step(d){const i=order.indexOf(cur),j=i+d;if(j<0||j>=order.length){atEnd(d);return;}endMsg.hidden=true;show(order[j]);}
 root.addEventListener("click",e=>{const t=e.target.closest(".thumb");if(t)open(t.dataset.id);});
-document.getElementById("lb-close").onclick=close;
+document.getElementById("lb-close").onclick=close;document.getElementById("lb-x").onclick=close;
 picBtn.onclick=()=>{const b=BUCKS.find(x=>x.id===cur);show(cur,(pic+1)%pics(b).length);};
 document.getElementById("lb-prev").onclick=()=>step(-1);
 document.getElementById("lb-next").onclick=()=>step(1);
