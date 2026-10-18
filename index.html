@@ -84,6 +84,8 @@ details[open] summary::after{transform:rotate(180deg)}
 .seenlist{list-style:none;margin:0;padding:0}
 .seenlist li{border-bottom:1px solid var(--line);padding:7px 0}
 .seenlist b{font-family:var(--display);letter-spacing:.05em;font-size:1.05rem}
+.rm{margin-top:6px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 10px;font-weight:600;font-size:.85rem;cursor:pointer}
+.rm.armed{border-color:#ff8a7a;color:#ff8a7a}
 .seenlist .sub{color:var(--muted);font-size:.9rem}
 .empty{color:var(--muted)}
 
@@ -249,7 +251,7 @@ function home(){
       h+=`<a class="buck" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age">${esc(b.age)}</span></div>
         <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}<span class="go">Details ›</span></div></a>`;}
     h+=`</section>`;}
-  if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span><button data-undo="${i}">Undo</button></li>`).join("")+`</ul></section>`;}
+  if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":x.field==="seen"?"Sighting of "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span>${x.field==="seen"?"":`<button data-undo="${i}">Undo</button>`}</li>`).join("")+`</ul></section>`;}
   h+=`<p class="foot">Ages are field estimates. Shooter line is 3.5+. Names, points and live sightings can be changed by anyone with the camp code.</p>`;
   $("v-home").innerHTML=h;
 }
@@ -265,7 +267,7 @@ function buck(id){const b=byId(id);if(!b){location.hash="";return;}
   <dl class="quick"><div><dt>Points</dt><dd>${esc(ptsOf(id))}</dd></div><div><dt>Cam sightings</dt><dd>${b.hist.length}</dd></div><div><dt>Seen live</dt><dd>${sn.length}</dd></div></dl>
   <details><summary>Last on cam <span class="peek">${esc(last.date||last.time?[last.date,last.time].filter(Boolean).join(" "):"added "+last.added)}</span></summary><div class="dbody">${camRows(last)}</div></details>
   <details><summary>Seen live <span class="peek">${sn.length?"Last: "+esc(fmtWhen(sn[0].when)):"none yet"}</span></summary><div class="dbody">
-    ${sn.length?`<ul class="seenlist">${sn.map(s=>`<li><b>${esc(s.stand)}</b> · ${esc(fmtWhen(s.when))}<div class="sub">${[s.came?"came from "+s.came:"",s.wind?"wind "+s.wind:"",s.by].filter(Boolean).map(esc).join(" · ")}</div>${s.note?`<div class="sub">${esc(s.note)}</div>`:""}</li>`).join("")}</ul>`:`<p class="empty">No one has logged him from a stand yet.</p>`}</div></details>
+    ${sn.length?`<ul class="seenlist">${sn.map(s=>`<li><b>${esc(s.stand)}</b> · ${esc(fmtWhen(s.when))}<div class="sub">${[s.came?"came from "+s.came:"",s.wind?"wind "+s.wind:"",s.by].filter(Boolean).map(esc).join(" · ")}</div>${s.note?`<div class="sub">${esc(s.note)}</div>`:""}${s._id?`<button class="rm" data-delseen="${esc(s._id)}">🗑 Remove</button>`:""}</li>`).join("")}</ul>`:`<p class="empty">No one has logged him from a stand yet.</p>`}</div></details>
   <details><summary>Age: ${esc(b.age)} <span class="peek">Why</span></summary><div class="dbody"><p>${fill(b.note)}</p></div></details>
   <details><summary>Points: ${esc(ptsOf(id))} <span class="peek">Edit</span></summary><div class="dbody"><p>${LIVE.pts[id]?"Set by the group.":"From the camera photos."}</p><button class="editbtn" data-edit="pts" data-id="${id}">${PENCIL} Edit points</button></div></details>
   <details><summary>Repeat customer <span class="peek">${fill(b.rep).replace(/^Possible /,"")}</span></summary><div class="dbody"><p>${fill(b.rep)}. Not confirmed.</p></div></details>
@@ -324,6 +326,12 @@ window.BBApp={
 
 // ---------- clicks ----------
 document.addEventListener("click",e=>{
+  const rm=e.target.closest("[data-delseen]");if(rm){
+    if(!rm.classList.contains("armed")){rm.classList.add("armed");rm.textContent="Tap again to remove";clearTimeout(rm._t);rm._t=setTimeout(()=>{rm.classList.remove("armed");rm.textContent="🗑 Remove";},4000);return;}
+    const sv=(LIVE.seen[VIEWID]||[]).find(x=>x._id===rm.dataset.delseen);if(!sv)return;
+    const label=`${sv.stand} ${fmtWhen(sv.when)}`,by=ls.get("bb-by"),code=ls.get("bb-code");
+    if(!by||!code){openEdit("del",VIEWID,label,sv._id);return;}
+    doDelete(sv._id,VIEWID,label,by,code);return;}
   const ed=e.target.closest("[data-edit]");if(ed){openEdit(ed.dataset.edit,ed.dataset.id);return;}
   const un=e.target.closest("[data-undo]");if(un){const x=LIVE.log[+un.dataset.undo];if(x)openEdit(x.field==="pts"?"pts":"name",x.id,x.from);return;}
   const pk=e.target.closest("[data-pick]");if(pk){const b=byId(VIEWID),p=pics(b)[+pk.dataset.pick];$("hero").dataset.i=pk.dataset.pick;$("hero").querySelector("img").src=`img/${p}.jpg`;document.querySelectorAll(".strip button").forEach(x=>x.classList.toggle("on",x===pk));return;}
@@ -356,8 +364,11 @@ document.addEventListener("submit",async e=>{if(e.target.id!=="sf")return;e.prev
 
 // ---------- edit dialog (name / points) ----------
 const dlg=$("dlg"),dv=$("dlg-val"),dby=$("dlg-by"),dcode=$("dlg-code"),dfirst=$("dlg-first"),derr=$("dlg-err"),dsave=$("dlg-save");
-let dKind=null,dId=null,dLast=null;
-function openEdit(kind,id,preset){dKind=kind;dId=id;dLast=document.activeElement;
+let dKind=null,dId=null,dLast=null,dRid=null;
+function openEdit(kind,id,preset,rid){dKind=kind;dId=id;dRid=rid||null;dLast=document.activeElement;
+  const isDel=kind==="del";dv.hidden=isDel;$("dlg-lbl").hidden=false;
+  if(isDel){$("dlg-title").textContent="Remove sighting";$("dlg-lbl").textContent=`${nameOf(id)} · ${preset}`;dby.value=ls.get("bb-by")||"";dcode.value=ls.get("bb-code")||"";dfirst.hidden=false;derr.textContent="";dsave.disabled=false;dsave.textContent="Remove";dlg.hidden=false;(dby.value?dcode:dby).focus();return;}
+  dsave.textContent="Save";
   $("dlg-title").textContent=(kind==="name"?"Rename ":"Points for ")+nameOf(id);
   $("dlg-lbl").textContent=kind==="name"?"New name":"Points (example: 8, 9, 10 or 6 (confirmed))";
   dv.value=preset||(kind==="name"?nameOf(id):ptsOf(id));dv.maxLength=kind==="name"?24:16;dv.classList.toggle("big",kind==="name");
@@ -367,6 +378,13 @@ function closeEdit(){dlg.hidden=true;dLast&&dLast.focus();}
 $("dlg-cancel").onclick=closeEdit;dlg.addEventListener("click",e=>{if(e.target===dlg)closeEdit();});
 [dv,dby,dcode].forEach(i=>i.addEventListener("input",()=>derr.textContent=""));
 $("dlg-form").addEventListener("submit",async e=>{e.preventDefault();
+  if(dKind==="del"){const who=dby.value.trim(),cc=dcode.value.trim();
+    if(!who){derr.textContent="Add your name.";dby.focus();return;}if(!cc){derr.textContent="Enter the camp code.";dcode.focus();return;}
+    dsave.disabled=true;const lbl=$("dlg-lbl").textContent.split(" · ").slice(1).join(" · ");
+    if(window.BBFB){try{await window.BBFB.delSeen(dRid,dId,lbl,who,cc);ls.set("bb-by",who);ls.set("bb-code",cc);closeEdit();toast("Sighting removed");}
+      catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");derr.textContent="That camp code didn't work. Check it with Bob.";}else derr.textContent="Couldn't remove. Check your signal.";}}
+    else derr.textContent="No connection yet. Try again with signal.";
+    dsave.disabled=false;return;}
   let v=dv.value.trim().replace(/\s+/g," ");if(dKind==="name")v=v.toUpperCase();
   const who=dby.value.trim(),cc=dcode.value.trim();
   if(!v){derr.textContent=dKind==="name"?"Type a name first.":"Type the points.";dv.focus();return;}
@@ -379,8 +397,11 @@ $("dlg-form").addEventListener("submit",async e=>{e.preventDefault();
   dsave.disabled=true;dsave.textContent="Saving…";
   try{await window.BBFB.edit(dKind,dId,old,v,who,cc);ls.set("bb-by",who);ls.set("bb-code",cc);closeEdit();toast(dKind==="name"?`${old} is now ${v}`:`${nameOf(dId)} points: ${v}`);}
   catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");dfirst.hidden=false;derr.textContent="That camp code didn't work. Check it with Bob.";dcode.focus();}else derr.textContent="Couldn't save. Check your signal and try again.";}
-  finally{dsave.disabled=false;dsave.textContent="Save";}
+  finally{dsave.disabled=false;if(dKind!=="del")dsave.textContent="Save";}
 });
+async function doDelete(rid,id,label,by,code){if(!window.BBFB){toast("No connection. Try again with signal.");return false;}
+  try{await window.BBFB.delSeen(rid,id,label,by,code);toast("Sighting removed");return true;}
+  catch(x){if(String(x&&x.code).includes("permission")){ls.del("bb-code");openEdit("del",id,label,rid);derr.textContent="That camp code didn't work. Check it with Bob.";}else toast("Couldn't remove. Check your signal.");return false;}}
 let tT=null;function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(tT);tT=setTimeout(()=>el.hidden=true,3000);}
 
 // ---------- photo viewer ----------
@@ -426,7 +447,7 @@ const app=initializeApp({apiKey:"AIzaSyA_oLJ8aZzoIRA3ZzO2EIIgBnTHRI_S_go",authDo
 const db=getFirestore(app),A=window.BBApp;
 onSnapshot(collection(db,"names"),s=>{const o={};s.forEach(d=>{if(d.data().name)o[d.id]=d.data().name;});A.live("names",o);},()=>{});
 onSnapshot(collection(db,"points"),s=>{const o={};s.forEach(d=>{if(d.data().pts)o[d.id]=d.data().pts;});A.live("pts",o);},()=>{});
-onSnapshot(collection(db,"seen"),s=>{const o={};s.forEach(d=>{const x=d.data();(o[x.id]=o[x.id]||[]).push(x);});A.live("seen",o);},()=>{});
+onSnapshot(collection(db,"seen"),s=>{const o={};s.forEach(d=>{const x=Object.assign({},d.data(),{_id:d.id});delete x.at;(o[x.id]=o[x.id]||[]).push(x);});A.live("seen",o);},()=>{});
 onSnapshot(query(collection(db,"log"),orderBy("at","desc"),limit(15)),s=>{const l=[];s.forEach(d=>{const x=d.data();l.push({id:x.id,field:x.field||"name",from:x.from,to:x.to,by:x.by,day:x.at&&x.at.toDate?x.at.toDate().toLocaleDateString(undefined,{month:"numeric",day:"numeric"}):""});});A.live("log",l);},()=>{});
 window.BBFB={
   async edit(kind,id,from,to,by,code){const ref=doc(collection(db,"renames"));const b=writeBatch(db);
@@ -434,6 +455,11 @@ window.BBFB={
     if(kind==="name")b.set(doc(db,"names",id),{name:to,by,at:serverTimestamp(),ref:ref.id});
     else b.set(doc(db,"points",id),{pts:to,by,at:serverTimestamp(),ref:ref.id});
     b.set(doc(db,"log",ref.id),{id,field:kind,from,to,by,at:serverTimestamp()});
+    await b.commit();},
+  async delSeen(rid,id,label,by,code){const k=rid+"_del";const b=writeBatch(db);
+    b.set(doc(db,"renames",k),{code});
+    b.delete(doc(db,"seen",rid));
+    b.set(doc(db,"log",k),{id,field:"seen",from:label,to:"removed",by,at:serverTimestamp()});
     await b.commit();},
   async seen(r,code){const ref=doc(collection(db,"renames"));const b=writeBatch(db);
     b.set(ref,{code});
