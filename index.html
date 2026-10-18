@@ -263,8 +263,8 @@ function buck(id){const b=byId(id);if(!b){location.hash="";return;}
   <button class="hero" id="hero" data-i="0" aria-label="Open photos"><img src="img/${ps[0]}.jpg" alt="${esc(nameOf(id))}"></button>
   ${ps.length>1?`<div class="strip">${ps.map((p,i)=>`<button data-pick="${i}" class="${i?"":"on"}" aria-label="Photo ${i+1}"><img src="img/${p}.jpg" alt="" loading="lazy"></button>`).join("")}</div>`:""}
   <dl class="quick"><div><dt>Points</dt><dd>${esc(ptsOf(id))}</dd></div><div><dt>Cam sightings</dt><dd>${b.hist.length}</dd></div><div><dt>Seen live</dt><dd>${sn.length}</dd></div></dl>
-  <details open><summary>Last on cam <span class="peek">${esc(last.date||last.time?[last.date,last.time].filter(Boolean).join(" "):"added "+last.added)}</span></summary><div class="dbody">${camRows(last)}</div></details>
-  <details${sn.length?" open":""}><summary>Seen live <span class="peek">${sn.length?"Last: "+esc(fmtWhen(sn[0].when)):"none yet"}</span></summary><div class="dbody">
+  <details><summary>Last on cam <span class="peek">${esc(last.date||last.time?[last.date,last.time].filter(Boolean).join(" "):"added "+last.added)}</span></summary><div class="dbody">${camRows(last)}</div></details>
+  <details><summary>Seen live <span class="peek">${sn.length?"Last: "+esc(fmtWhen(sn[0].when)):"none yet"}</span></summary><div class="dbody">
     ${sn.length?`<ul class="seenlist">${sn.map(s=>`<li><b>${esc(s.stand)}</b> · ${esc(fmtWhen(s.when))}<div class="sub">${[s.came?"came from "+s.came:"",s.wind?"wind "+s.wind:"",s.by].filter(Boolean).map(esc).join(" · ")}</div>${s.note?`<div class="sub">${esc(s.note)}</div>`:""}</li>`).join("")}</ul>`:`<p class="empty">No one has logged him from a stand yet.</p>`}</div></details>
   <details><summary>Age: ${esc(b.age)} <span class="peek">Why</span></summary><div class="dbody"><p>${fill(b.note)}</p></div></details>
   <details><summary>Points: ${esc(ptsOf(id))} <span class="peek">Edit</span></summary><div class="dbody"><p>${LIVE.pts[id]?"Set by the group.":"From the camera photos."}</p><button class="editbtn" data-edit="pts" data-id="${id}">${PENCIL} Edit points</button></div></details>
