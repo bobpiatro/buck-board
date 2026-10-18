@@ -306,6 +306,7 @@ function seenForm(id){const b=byId(id);if(!b){location.hash="";return;}
 let VIEW="home",VIEWID=null;
 function route(){const h=location.hash.slice(1);let v="home",id=null;
   if(h==="g")v="gallery";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
   ["home","buck","gallery","seen"].forEach(k=>$("v-"+k).hidden=k!==v);
   draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
@@ -365,7 +366,7 @@ document.addEventListener("submit",async e=>{if(e.target.id!=="sf")return;e.prev
 // ---------- edit dialog (name / points) ----------
 const dlg=$("dlg"),dv=$("dlg-val"),dby=$("dlg-by"),dcode=$("dlg-code"),dfirst=$("dlg-first"),derr=$("dlg-err"),dsave=$("dlg-save");
 let dKind=null,dId=null,dLast=null,dRid=null;
-function openEdit(kind,id,preset,rid){dKind=kind;dId=id;dRid=rid||null;dLast=document.activeElement;
+function openEdit(kind,id,preset,rid){if(dlg.hidden)ovPush();dKind=kind;dId=id;dRid=rid||null;dLast=document.activeElement;
   const isDel=kind==="del";dv.hidden=isDel;$("dlg-lbl").hidden=false;
   if(isDel){$("dlg-title").textContent="Remove sighting";$("dlg-lbl").textContent=`${nameOf(id)} · ${preset}`;dby.value=ls.get("bb-by")||"";dcode.value=ls.get("bb-code")||"";dfirst.hidden=false;derr.textContent="";dsave.disabled=false;dsave.textContent="Remove";dlg.hidden=false;(dby.value?dcode:dby).focus();return;}
   dsave.textContent="Save";
@@ -374,7 +375,12 @@ function openEdit(kind,id,preset,rid){dKind=kind;dId=id;dRid=rid||null;dLast=doc
   dv.value=preset||(kind==="name"?nameOf(id):ptsOf(id));dv.maxLength=kind==="name"?24:16;dv.classList.toggle("big",kind==="name");
   dby.value=ls.get("bb-by")||"";dcode.value=ls.get("bb-code")||"";dfirst.hidden=!!(ls.get("bb-by")&&ls.get("bb-code"));
   derr.textContent="";dsave.disabled=false;dlg.hidden=false;dv.focus();dv.select();}
-function closeEdit(){dlg.hidden=true;dLast&&dLast.focus();}
+function closeEdit(){if(ovBack())return;hideEdit();}
+function hideEdit(){dlg.hidden=true;dLast&&dLast.focus();}
+// Phone back button closes an open photo or edit box instead of leaving the page behind it.
+function ovPush(){try{history.pushState({ov:1},"")}catch(e){}}
+function ovBack(){if(history.state&&history.state.ov){history.back();return true;}return false;}
+addEventListener("popstate",()=>{if(!vw.hidden)hideViewer();if(!dlg.hidden)hideEdit();});
 $("dlg-cancel").onclick=closeEdit;dlg.addEventListener("click",e=>{if(e.target===dlg)closeEdit();});
 [dv,dby,dcode].forEach(i=>i.addEventListener("input",()=>derr.textContent=""));
 $("dlg-form").addEventListener("submit",async e=>{e.preventDefault();
@@ -407,8 +413,9 @@ let tT=null;function toast(t){const el=$("toast");el.textContent=t;el.hidden=fal
 // ---------- photo viewer ----------
 const vw=$("vw"),vimg=$("vw-img"),stage=$("vw-stage"),vmsg=$("vw-msg");
 let vlist=[],vi=0,sc=1,tx=0,ty=0,vLast=null;
-function openViewer(list,i){vLast=document.activeElement;vlist=list;vw.hidden=false;document.documentElement.classList.add("locked");vShow(i);$("vw-close").focus();}
-function closeViewer(){vw.hidden=true;vmsg.hidden=true;document.documentElement.classList.remove("locked");vLast&&vLast.focus();}
+function openViewer(list,i){vLast=document.activeElement;vlist=list;if(vw.hidden)ovPush();vw.hidden=false;document.documentElement.classList.add("locked");vShow(i);$("vw-close").focus();}
+function closeViewer(){if(ovBack())return;hideViewer();}
+function hideViewer(){vw.hidden=true;vmsg.hidden=true;document.documentElement.classList.remove("locked");vLast&&vLast.focus();}
 function vShow(i){vi=i;const x=vlist[i];vimg.src=`img/${x.p}.jpg`;vimg.alt=nameOf(x.id);$("vw-name").textContent=nameOf(x.id);
   $("vw-count").textContent=vlist.length>1?`${i+1} of ${vlist.length}`:"";$("vw-prev").disabled=i===0;$("vw-next").disabled=i===vlist.length-1;reset();}
 function vStep(d){const j=vi+d;if(j<0||j>=vlist.length){vmsg.textContent=d>0?"Last photo":"First photo";vmsg.hidden=false;stage.style.setProperty("--nx",(d>0?-24:24)+"px");stage.classList.remove("bump");void stage.offsetWidth;stage.classList.add("bump");setTimeout(()=>{vmsg.hidden=true;stage.classList.remove("bump");},1100);return;}vmsg.hidden=true;vShow(j);}
