@@ -39,7 +39,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",pics:["F"]}]},
  {id:"M",name:"STILTS",g:"mid",age:"2.5",pts:"6–8",dn:"Day",rep:"No match",
   note:"Clean profile. Lean, long-legged, straight belly, thin neck, modest rack with short tines.",
-  hist:[{added:"10/17/26",pics:["M"]}]},
+  hist:[{added:"10/18/26",date:"10/18/26",time:"7:07 PM",temp:"61°F",cam:"Mikey Sunshine (Moultrie)",pics:["M-2","M-3"]},{added:"10/17/26",pics:["M"]}]},
  {id:"N",name:"SHADOW",g:"mid",age:"2.5",pts:"8",dn:"Night",rep:"Possible @A",
   note:"At distance. Modest 8 near ear width, moderate body.",
   hist:[{added:"10/17/26",pics:["N"]}]},
