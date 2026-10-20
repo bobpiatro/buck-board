@@ -7,7 +7,7 @@ window.STANDS = [
 ];
 
 // g: shoot = 3.5+, mid = 2-3, young = under 2, unk = can't age
-// hist: camera sightings, newest first. pics are files in img/.
+// hist: camera sightings, newest first. pics are files in img/. cover: pic to use as the card photo (else newest).
 // In rep/note text, @X means "the current name of buck X".
 window.BUCKS = [
  {id:"K",name:"WIDE LOAD",g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible @I",
@@ -28,7 +28,7 @@ window.BUCKS = [
  {id:"H",name:"DASH",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"No match",
   note:"Video from School House shows him broadside: deep chest, heavy through the middle, thick neck running into the shoulders. Belly still fairly flat, so not old, but past 2.5. Bob would shoot him. Rack looks modest for the body; too far to count.",
   hist:[{added:"10/17/26",date:"10/16/26",time:"6:51 PM",temp:"48°F",cam:"School House (Moultrie)",pics:["H-2","H-5","H-3","H","H-4"]}]},
- {id:"N",name:"SHADOW",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Possible @A",
+ {id:"N",name:"SHADOW",g:"shoot",age:"3.5",pts:"8",dn:"Night",cover:"N",rep:"Possible @A",
   note:"Tall beams rising into a U, near ear width. 10/20 fog shot shows a thick neck and sagging belly; Bob moved him up to 3.5 (his call). Fog bloom can exaggerate body on IR, so a clear shot would confirm.",
   hist:[{added:"10/20/26",date:"10/20/26",time:"12:04 AM",temp:"41°F",cam:"Spypoint Flex-M",pics:["N-2","N-3"]},{added:"10/17/26",pics:["N"]}]},
  {id:"J",name:"PITCHFORK",g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible @G",

@@ -223,7 +223,8 @@ try{const c=JSON.parse(ls.get("bb-live")||"null");if(c)LIVE=Object.assign(LIVE,c
 const nameOf=id=>{const b=byId(id);return LIVE.names[id]||(b?b.name:id);};
 const ptsOf=id=>LIVE.pts[id]||byId(id).pts;
 const fill=t=>esc(t).replace(/@([A-Z])/g,(m,id)=>esc(nameOf(id)));
-const pics=b=>b.hist.flatMap(h=>h.pics||[]);
+// cover: optional pic to lead with (card photo) instead of the newest sighting's.
+const pics=b=>{const l=b.hist.flatMap(h=>h.pics||[]);return b.cover&&l.includes(b.cover)?[b.cover,...l.filter(p=>p!==b.cover)]:l;};
 const seenOf=id=>(LIVE.seen[id]||[]).slice().sort((a,b)=>b.when<a.when?-1:1);
 
 // dates
