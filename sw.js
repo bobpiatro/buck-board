@@ -1,6 +1,6 @@
 // Photos: show the saved copy instantly, refresh in the background.
 // Page + data: try the network, but fall back to the saved copy after 3s so weak signal never hangs the board.
-const CACHE = "buck-board-v27";
+const CACHE = "buck-board-v28";
 self.addEventListener("install", e => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
@@ -21,7 +21,8 @@ self.addEventListener("fetch", e => {
     let done = false;
     const fallback = () => caches.match(req).then(m => m || caches.match("./"));
     const timer = setTimeout(() => fallback().then(m => { if (m && !done) { done = true; resolve(m); } }), 3000);
-    fetch(req).then(r => { save(req, r); if (!done) { done = true; clearTimeout(timer); resolve(r); } })
+    // no-cache: always check GitHub for a newer page/data instead of the browser's 10-minute copy
+    fetch(req, { cache: "no-cache" }).then(r => { save(req, r); if (!done) { done = true; clearTimeout(timer); resolve(r); } })
       .catch(() => fallback().then(m => { if (!done) { done = true; clearTimeout(timer); resolve(m || Response.error()); } }));
   }));
 });
