@@ -30,7 +30,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",date:"10/16/26",time:"6:51 PM",temp:"48°F",cam:"School House (Moultrie)",pics:["H-2","H-5","H-3","H","H-4"]}]},
  {id:"N",name:"SHADOW",g:"shoot",age:"3.5",pts:"8",dn:"Night",cover:"N",rep:"Possible @A",
   note:"Tall beams rising into a U, near ear width. 10/20 fog shot shows a thick neck and sagging belly; Bob moved him up to 3.5 (his call). Fog bloom can exaggerate body on IR, so a clear shot would confirm.",
-  hist:[{added:"10/20/26",date:"10/20/26",time:"12:04 AM",temp:"41°F",cam:"Spypoint Flex-M",pics:["N-2","N-3"]},{added:"10/17/26",pics:["N"]}]},
+  hist:[{added:"10/20/26",date:"10/20/26",time:"12:04 AM",temp:"41°F",cam:"Spypoint Flex-M",pics:["N-4","N-3"]},{added:"10/17/26",pics:["N"]}]},
  {id:"J",name:"PITCHFORK",g:"mid",age:"2.5–3.5",pts:"8",dn:"Day",rep:"Possible @G",
   note:"Best daylight photo in the set. Tall tines, forked left side, rack inside the ears. Neck not swelled, chest moderate. Borderline.",
   hist:[{added:"10/17/26",date:"10/11/26",time:"6:23 PM",temp:"67°F",cam:"Spypoint Flex-M",pics:["J","J-2"]}]},
