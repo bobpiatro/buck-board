@@ -11,10 +11,10 @@ window.STANDS = [
 // hist: camera sightings, newest first. pics are files in img/. cover: pic to use as the card photo (else newest).
 // In rep/note text, @X means "the current name of buck X".
 window.BUCKS = [
- {id:"K",name:"WIDE LOAD",top:true,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"Possible @I",
+ {id:"K",name:"WIDE LOAD",top:true,g:"shoot",age:"4.5+",pts:"8–10",dn:"Night",rep:"No match",
   note:"10/21 daylight: wide rack well outside the ears, long beams sweeping forward with tips curving in, tall G2s (Bob matched the G2 shape and length to the 10/14 night shot). Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size.",
   hist:[{added:"10/21/26",date:"10/21/26",time:"6:27 PM",temp:"60°F",cam:"Barnyard (Spypoint)",pics:["K-5","K-cmp","K-4"]},{added:"10/17/26",date:"10/14/26",time:"5:17 AM",temp:"46°F",cam:"Spypoint Flex-M",pics:["K","K-2"]}]},
- {id:"I",name:"BIG RED",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @K, @D/@G",
+ {id:"I",name:"BIG RED",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @D/@G",
   note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread.",
   hist:[{added:"10/17/26",date:"10/16/26",time:"5:47 PM",temp:"45°F",cam:"Spypoint Flex-M + Mikey Sunshine (Moultrie)",pics:["I","I-2","I-3"]}]},
  {id:"D",name:"NIGHT SHIFT",g:"shoot",age:"3.5",pts:"8",dn:"Night",rep:"Likely @G, possible @I/@A",
