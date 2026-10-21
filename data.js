@@ -27,7 +27,7 @@ window.BUCKS = [
   hist:[{added:"10/18/26",date:"10/17/26",time:"6:22 PM",temp:"57°F",cam:"Mikey Sunshine (Moultrie)",pics:["O","O-2","O-3"]}]},
  {id:"H",name:"DASH",g:"shoot",age:"3.5",pts:"8 (your call)",dn:"Day",rep:"No match",
   note:"Video from School House shows him broadside: deep chest, heavy through the middle, thick neck running into the shoulders. Belly still fairly flat, so not old, but past 2.5. Bob would shoot him. Rack looks modest for the body; too far to count.",
-  hist:[{added:"10/17/26",date:"10/16/26",time:"6:51 PM",temp:"48°F",cam:"School House (Moultrie)",pics:["H-2","H-5","H-3","H","H-4"]}]},
+  hist:[{added:"10/20/26",date:"10/20/26",time:"6:48 PM",temp:"56°F",cam:"School House (Moultrie)",pics:["H-6","H-7"]},{added:"10/17/26",date:"10/16/26",time:"6:51 PM",temp:"48°F",cam:"School House (Moultrie)",pics:["H-2","H-5","H-3","H","H-4"]}]},
  {id:"N",name:"SHADOW",g:"shoot",age:"3.5",pts:"8",dn:"Night",cover:"N",rep:"Possible @A",
   note:"Tall beams rising into a U, near ear width. 10/20 fog shot shows a thick neck and sagging belly; Bob moved him up to 3.5 (his call). Fog bloom can exaggerate body on IR, so a clear shot would confirm.",
   hist:[{added:"10/20/26",date:"10/20/26",time:"12:04 AM",temp:"41°F",cam:"Spypoint Flex-M",pics:["N-4","N-3"]},{added:"10/17/26",pics:["N"]}]},
