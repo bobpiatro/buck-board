@@ -162,6 +162,12 @@ details[open] summary::after{transform:rotate(180deg)}
 .sum .big b{font:700 1.6rem var(--display);letter-spacing:.05em;color:var(--c);text-transform:uppercase}
 .sum .big span{font:600 1.5rem var(--mono);font-variant-numeric:tabular-nums}
 .sum p{margin:0;font-size:.92rem;color:var(--muted)}
+.sumrow{display:flex;gap:10px;align-items:center}
+.sumtxt{flex:1;min-width:0;display:grid;gap:6px}
+.dial{flex:none;display:grid;justify-items:center;gap:0}
+.dial svg{display:block}
+.dlab{font:700 1.15rem var(--display);letter-spacing:.05em;margin-top:2px}
+.dsub{font:500 .7rem var(--mono);color:var(--muted)}
 .sum p strong{color:var(--fg);font-weight:600}
 .st{width:100%;border-collapse:collapse;margin-top:12px}
 .st th{font:600 .72rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:0 6px 6px}
@@ -371,7 +377,7 @@ function sitWindow(j,ds,part){const di=j.daily.time.indexOf(ds);if(di<0)return n
   const storm=idx.some(i=>STORM.has(h.weather_code[i]));
   let x=0,y=0,sp=0;idx.forEach(i=>{const s=h.wind_speed_10m[i]||0,r=(h.wind_direction_10m[i]||0)*Math.PI/180;x+=s*Math.sin(r);y+=s*Math.cos(r);sp+=s;});
   sp/=idx.length;const deg=(Math.atan2(x,y)*180/Math.PI+360)%360;
-  return {tmax:Math.round(tmax),rain,storm,sp:Math.round(sp),dir:PTS[Math.round(deg/45)%8],from:fmtTime(lo.slice(11)),to:part==="AM"?"10:00 AM":fmtTime(ss.slice(11,16))};}
+  return {tmax:Math.round(tmax),rain,storm,sp:Math.round(sp),deg,dir:PTS[Math.round(deg/45)%8],from:fmtTime(lo.slice(11)),to:part==="AM"?"10:00 AM":fmtTime(ss.slice(11,16))};}
 function rateDay(j,ds,part){const di=j.daily.time.indexOf(ds);const w=sitWindow(j,ds,part);if(!w)return null;
   const hiT=j.daily.temperature_2m_max[di],nm=normHi(ds);
   const prev=[j.daily.temperature_2m_max[di-1],j.daily.temperature_2m_max[di-2]].filter(v=>typeof v==="number");
@@ -387,6 +393,16 @@ function rateDay(j,ds,part){const di=j.daily.time.indexOf(ds);const w=sitWindow(
   return {lv,w,hiT:Math.round(hiT),nm:nm==null?null:Math.round(nm),why};}
 function windLv(stand,w){const sw=(window.STAND_WINDS||{})[stand];if(!sw)return null;
   let l=sw.g.includes(w.dir)?0:sw.y.includes(w.dir)?1:2;if(w.sp<4&&l===0)l=1;return l;}
+// Wind dial: N/E/S/W ring, arrow flies the way the wind blows (tail on the side it comes from). Color = speed.
+const WSPD=[{max:3,c:"#9aa38f",t:"Calm / swirly"},{max:9,c:"#7cc4ff",t:"Light"},{max:17,c:"#f2cd3a",t:"Moderate"},{max:999,c:"#ef5a4c",t:"Strong"}];
+function windDial(w){const k=WSPD.find(x=>w.sp<=x.max),to=(w.deg+180)%360;
+  const lab=(t,x,y)=>`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" fill="var(--fg)" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="15">${t}</text>`;
+  const ticks=[0,45,90,135,180,225,270,315].map(a=>`<line x1="60" y1="${a%90?16:14}" x2="60" y2="${a%90?21:22}" stroke="var(--muted)" stroke-width="${a%90?1.5:2.5}" transform="rotate(${a} 60 60)"/>`).join("");
+  return `<div class="dial"><svg viewBox="0 0 120 120" width="118" height="118" role="img" aria-label="Wind from ${w.dir} at ${w.sp} miles per hour">
+    <circle cx="60" cy="60" r="44" fill="var(--raise)" stroke="var(--line)" stroke-width="2"/>${ticks}
+    ${lab("N",60,6)}${lab("E",114,60)}${lab("S",60,114)}${lab("W",6,60)}
+    <g transform="rotate(${to.toFixed(0)} 60 60)"><line x1="60" y1="92" x2="60" y2="36" stroke="${k.c}" stroke-width="7" stroke-linecap="round"/><path d="M60 22 L74 42 L46 42 Z" fill="${k.c}"/><circle cx="60" cy="92" r="5" fill="${k.c}"/></g>
+    </svg><div class="dlab" style="color:${k.c}">${w.dir} ${w.sp} mph</div><div class="dsub">${k.t}</div></div>`;}
 function sits(){
   if(!WXD||Date.now()-WXD.at>30*60*1000)wxLoad();
   let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Stands</h1><span class="count">Hubbard Lake</span></div>`;
@@ -401,9 +417,9 @@ function sits(){
   if(!r){h+=`<p class="note">No forecast hours for that sit.</p>`;$("v-sits").innerHTML=h;return;}
   const w=r.w;
   h+=`<div class="sum" style="--c:${LV[r.lv].c}"><div class="big"><b>Temp: ${LV[r.lv].t}</b><span>${w.tmax}°</span></div>
-    <p><strong>${w.from} – ${w.to}</strong> · wind <strong>${w.dir} ${w.sp} mph</strong>${w.sp<4?" (light, may swirl)":""}</p>
+    <div class="sumrow"><div class="sumtxt"><p><strong>${w.from} – ${w.to}</strong></p>
     <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
-    <p>${esc(r.why.join(" · "))}</p></div>`;
+    <p>${esc(r.why.join(" · "))}</p></div>${windDial(w)}</div></div>`;
   const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
   const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;const w2=tl===2?2:wl;return {s,wl,tl,all:Math.max(wl,tl),nm:w2===tl?tl:1};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
   h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt" style="--c:${LV[x.tl===2?2:x.wl].c}">${LV[x.tl===2?2:x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
@@ -415,6 +431,7 @@ function sits(){
     <li>10°+ above the Alpena normal for the date: one level worse. 10°+ below normal, or a 10°+ cold drop from the last 2 days: one level better.</li>
     <li>Steady rain (0.1"+ during the sit) knocks it down one, unless the wind is 15+ mph. Storms, downpours and heavy snow are red.</li>
     <li><b>Wind</b>: each stand's good and iffy directions. Under 4 mph is capped at Iffy because it swirls.</li>
+    <li><b>Wind dial</b>: arrow shows which way the wind is blowing (tail = where it comes from). Gray under 4 mph, blue 4–9, yellow 10–17, red 18+.</li>
     <li>Red temp makes every stand red. Moon, barometer and wind speed don't count.</li></ul></div></details>`;
   $("v-sits").innerHTML=h;
 }
