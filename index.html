@@ -164,6 +164,9 @@ details[open] summary::after{transform:rotate(180deg)}
 .sum p{margin:0;font-size:.92rem;color:var(--muted)}
 .sumrow{display:flex;gap:10px;align-items:center}
 .sumtxt{flex:1;min-width:0;display:grid;gap:6px}
+.sum .why{color:var(--c);font-weight:600}
+.tempban{margin-top:10px;background:var(--young);color:var(--ink);border-radius:8px;padding:9px 12px;font:700 1.05rem var(--display);letter-spacing:.06em;text-align:center}
+.lt.dim{opacity:.4}
 .dial{flex:none;display:grid;justify-items:center;gap:0}
 .dial svg{display:block}
 .dlab{font:700 1.15rem var(--display);letter-spacing:.05em;margin-top:2px}
@@ -416,14 +419,14 @@ function sits(){
   const ds=days[SDAY],r=rateDay(j,ds,SPART);
   if(!r){h+=`<p class="note">No forecast hours for that sit.</p>`;$("v-sits").innerHTML=h;return;}
   const w=r.w;
-  h+=`<div class="sum" style="--c:${LV[r.lv].c}"><div class="big"><b>Temp: ${LV[r.lv].t}</b><span>${w.tmax}°</span></div>
+  h+=`<div class="sum" style="--c:${LV[r.lv].c}"><div class="big"><b>Temp: ${LV[r.lv].t}</b><span style="color:var(--c)">${w.tmax}°</span></div>
     <div class="sumrow"><div class="sumtxt"><p><strong>${w.from} – ${w.to}</strong></p>
     <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
-    <p>${esc(r.why.join(" · "))}</p></div>${windDial(w)}</div></div>`;
+    <p class="why">${esc(r.why.join(" · "))}</p></div>${windDial(w)}</div></div>`;
+  if(r.lv===2)h+=`<div class="tempban">TOO WARM · TEMP KILLS THIS SIT</div>`;
   const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
-  const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;const w2=tl===2?2:wl;return {s,wl,tl,all:Math.max(wl,tl),nm:w2===tl?tl:1};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
-  h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt" style="--c:${LV[x.tl===2?2:x.wl].c}">${LV[x.tl===2?2:x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
-  if(r.lv===2)h+=`<p class="note">Temp is red, so every stand is red. Save your best stands for a better sit.</p>`;
+  const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl),nm:tl===2?2:(wl===tl?tl:1)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
+  h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt${x.tl===2?" dim":""}" style="--c:${LV[x.wl].c}">${LV[x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
   const ago=Math.round((Date.now()-WXD.at)/60000);
   h+=`<p class="note">Forecast updated ${ago<1?"just now":ago<60?ago+" min ago":Math.round(ago/60)+" hr ago"}.${WXERR?" "+esc(WXERR):""} Wind is the average direction for the sit, blowing from.</p>`;
   h+=`<details class="how"><summary>How it's rated</summary><div class="dbody"><ul>

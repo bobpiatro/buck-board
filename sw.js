@@ -1,6 +1,6 @@
 // Photos: show the saved copy instantly, refresh in the background.
 // Page + data: try the network, but fall back to the saved copy after 3s so weak signal never hangs the board.
-const CACHE = "buck-board-v45";
+const CACHE = "buck-board-v46";
 self.addEventListener("install", e => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
