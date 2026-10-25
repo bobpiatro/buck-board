@@ -144,6 +144,7 @@ details[open] summary::after{transform:rotate(180deg)}
 
 /* stand sits */
 .topbtns{display:flex;gap:6px;flex:none}
+.galbtn{letter-spacing:.06em}.galbtn.hot{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 @media (max-width:460px){.top{flex-wrap:wrap}.topbtns{order:3;width:100%}.topbtns .galbtn{flex:1;justify-content:center}}
 .days{display:flex;gap:6px;overflow-x:auto;margin:10px -16px 0;padding:2px 16px 4px;scrollbar-width:none}
 .days::-webkit-scrollbar{display:none}
@@ -281,8 +282,8 @@ const $=id=>document.getElementById(id);
 // ---------- views ----------
 function home(){
   let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
-    <div class="topbtns"><a class="galbtn" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>Sits</a>
-    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Gallery</a></div></div>`;
+    <div class="topbtns"><a class="galbtn hot" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>STANDS</a>
+    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a></div></div>`;
   for(const g of GROUPS){const list=BUCKS.filter(b=>b.g===g.key);if(!list.length)continue;
     h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
     for(const b of list){const s=seenOf(b.id)[0];
@@ -388,7 +389,7 @@ function windLv(stand,w){const sw=(window.STAND_WINDS||{})[stand];if(!sw)return 
   let l=sw.g.includes(w.dir)?0:sw.y.includes(w.dir)?1:2;if(w.sp<4&&l===0)l=1;return l;}
 function sits(){
   if(!WXD||Date.now()-WXD.at>30*60*1000)wxLoad();
-  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Stand Sits</h1><span class="count">Hubbard Lake</span></div>`;
+  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Stands</h1><span class="count">Hubbard Lake</span></div>`;
   if(!WXD){h+=WXBUSY?`<p class="note">Loading forecast…</p>`:`<p class="err">${esc(WXERR)}</p><button class="retry" data-wxretry>Try again</button>`;$("v-sits").innerHTML=h;return;}
   const j=WXD.j,tk=todayKey(),days=j.daily.time.filter(d=>d>=tk).slice(0,7);
   if(SDAY>=days.length)SDAY=0;
