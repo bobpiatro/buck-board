@@ -474,7 +474,7 @@ window.BBApp={
 // ---------- clicks ----------
 document.addEventListener("click",e=>{
   const bk=e.target.closest("a.back");if(bk){e.preventDefault();goBackTo(bk.getAttribute("href"));return;}
-  const sd=e.target.closest("[data-sday]");if(sd){SDAY=+sd.dataset.sday;const dl=document.querySelector(".days"),sl=dl?dl.scrollLeft:0;sits();const nd=document.querySelector(".days");if(nd)nd.scrollLeft=sl;return;}
+  const sd=e.target.closest("[data-sday]");if(sd){SDAY=+sd.dataset.sday;SPART=SDAY===0&&new Date().getHours()>=11?"PM":"AM";const dl=document.querySelector(".days"),sl=dl?dl.scrollLeft:0;sits();const nd=document.querySelector(".days");if(nd)nd.scrollLeft=sl;return;}
   const sp=e.target.closest("[data-spart]");if(sp){SPART=sp.dataset.spart;const dl=document.querySelector(".days"),sl=dl?dl.scrollLeft:0;sits();const nd=document.querySelector(".days");if(nd)nd.scrollLeft=sl;return;}
   if(e.target.closest("[data-wxretry]")){wxLoad();sits();return;}
   const rm=e.target.closest("[data-delseen]");if(rm){
