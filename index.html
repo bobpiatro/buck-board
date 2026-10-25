@@ -142,6 +142,37 @@ details[open] summary::after{transform:rotate(180deg)}
 .btns .primary{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
 
+/* stand sits */
+.topbtns{display:flex;gap:6px;flex:none}
+@media (max-width:460px){.top{flex-wrap:wrap}.topbtns{order:3;width:100%}.topbtns .galbtn{flex:1;justify-content:center}}
+.days{display:flex;gap:6px;overflow-x:auto;margin:10px -16px 0;padding:2px 16px 4px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.dchip{flex:none;display:grid;justify-items:center;gap:3px;min-width:56px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:8px 6px;cursor:pointer}
+.dchip b{font:700 1.05rem var(--display);letter-spacing:.06em}
+.dchip small{font:500 .72rem var(--mono);color:var(--muted)}
+.dchip i{display:flex;gap:3px}
+.dchip i span{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.dchip.on{border-color:var(--accent);background:var(--raise);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:10px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:11px;font:700 1.15rem var(--display);letter-spacing:.08em;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--ink)}
+.sum{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.sum .big{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sum .big b{font:700 1.6rem var(--display);letter-spacing:.05em;color:var(--c);text-transform:uppercase}
+.sum .big span{font:600 1.5rem var(--mono);font-variant-numeric:tabular-nums}
+.sum p{margin:0;font-size:.92rem;color:var(--muted)}
+.sum p strong{color:var(--fg);font-weight:600}
+.st{width:100%;border-collapse:collapse;margin-top:12px}
+.st th{font:600 .72rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:0 6px 6px}
+.st th:not(:first-child),.st td:not(:first-child){text-align:center;width:28%}
+.st td{border-top:1px solid var(--line);padding:9px 6px}
+.st td:first-child{font:700 1.25rem var(--display);letter-spacing:.05em}
+.st tr.dead td:first-child{color:var(--muted)}
+.lt{display:inline-block;min-width:4.6em;border-radius:6px;padding:5px 8px;font:700 .95rem var(--display);letter-spacing:.07em;text-transform:uppercase;background:var(--c);color:var(--ink)}
+.note{margin-top:10px;font-size:.85rem;color:var(--muted)}
+.how .dbody ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.retry{margin-top:10px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer}
+
 /* history at bottom of home */
 .hist{margin-top:26px}
 .hist h2{margin:0 0 6px;font:700 1.2rem var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
@@ -176,6 +207,7 @@ details[open] summary::after{transform:rotate(180deg)}
 <main class="view" id="v-buck" hidden></main>
 <main class="view" id="v-gallery" hidden></main>
 <main class="view" id="v-seen" hidden></main>
+<main class="view" id="v-sits" hidden></main>
 
 <div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-title">
   <form id="dlg-form" novalidate>
@@ -249,7 +281,8 @@ const $=id=>document.getElementById(id);
 // ---------- views ----------
 function home(){
   let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
-    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Gallery</a></div>`;
+    <div class="topbtns"><a class="galbtn" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>Sits</a>
+    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Gallery</a></div></div>`;
   for(const g of GROUPS){const list=BUCKS.filter(b=>b.g===g.key);if(!list.length)continue;
     h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
     for(const b of list){const s=seenOf(b.id)[0];
@@ -307,6 +340,84 @@ function seenForm(id){const b=byId(id);if(!b){location.hash="";return;}
   <div class="done" id="sf-done" hidden></div>`;
 }
 
+// ---------- stand sits ----------
+// Rating rules (from the research Bob signed off on):
+//  Temp: warmest temp in the sit window. 61°F or less = green, 62–68 = yellow, 69+ = red (Beier & McCullough 1990, Michigan).
+//        Day 10°F+ above Alpena normal = one level worse; 10°F+ below normal or a 10°F+ drop from the prior 2 days = one level better.
+//        Steady rain (0.1"+ in the window) = one level worse unless wind averages 15+ mph. Storm / downpour / heavy snow = red.
+//  Wind: each stand's green / yellow directions; anything else red. Under 4 mph = light and swirly, capped at yellow.
+//  Red temp turns every stand red. Moon, pressure and wind speed don't count (no support in the GPS studies).
+const WX={lat:44.79,lon:-83.56,key:"bb-wx"};
+const LV=[{t:"Good",c:"var(--shoot)"},{t:"Iffy",c:"var(--mid)"},{t:"No",c:"var(--young)"}];
+const PTS=["N","NE","E","SE","S","SW","W","NW"];
+const STORM=new Set([65,67,75,82,86,95,96,99]);
+let WXD=null,WXERR="",WXBUSY=false,SDAY=0,SPART=null;
+try{WXD=JSON.parse(ls.get(WX.key)||"null");}catch(e){}
+function normHi(ds){const m=+ds.slice(5,7),d=+ds.slice(8,10),a=(window.NORMAL_HIGH||{})[m];if(!a)return null;return a[Math.min(d,a.length)-1];}
+function wxLoad(){if(WXBUSY)return;WXBUSY=true;WXERR="";
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${WX.lat}&longitude=${WX.lon}&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FDetroit&past_days=2&forecast_days=8`;
+  fetch(u).then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{if(!j.hourly||!j.daily)throw 0;WXD={j,at:Date.now()};ls.set(WX.key,JSON.stringify(WXD));})
+    .catch(()=>{WXERR=WXD?"Couldn't refresh. Showing the last forecast saved on this phone.":"Couldn't load the forecast. Check your signal.";})
+    .finally(()=>{WXBUSY=false;if(VIEW==="sits")sits();});}
+function sitWindow(j,ds,part){const di=j.daily.time.indexOf(ds);if(di<0)return null;
+  const sr=j.daily.sunrise[di],ss=j.daily.sunset[di],h=j.hourly,idx=[];
+  // AM: the hour sunrise falls in through 10 AM. PM: 3 PM through the hour sunset falls in.
+  const lo=part==="AM"?sr.slice(0,14)+"00":ds+"T15:00",hi=part==="AM"?ds+"T10:00":ss.slice(0,14)+"00";
+  h.time.forEach((t,i)=>{if(t>=lo&&t<=hi)idx.push(i);});
+  if(!idx.length)return null;
+  const tmax=Math.max(...idx.map(i=>h.temperature_2m[i]));
+  const rain=idx.reduce((a,i)=>a+(h.precipitation[i]||0),0);
+  const storm=idx.some(i=>STORM.has(h.weather_code[i]));
+  let x=0,y=0,sp=0;idx.forEach(i=>{const s=h.wind_speed_10m[i]||0,r=(h.wind_direction_10m[i]||0)*Math.PI/180;x+=s*Math.sin(r);y+=s*Math.cos(r);sp+=s;});
+  sp/=idx.length;const deg=(Math.atan2(x,y)*180/Math.PI+360)%360;
+  return {tmax:Math.round(tmax),rain,storm,sp:Math.round(sp),dir:PTS[Math.round(deg/45)%8],from:fmtTime(lo.slice(11)),to:part==="AM"?"10:00 AM":fmtTime(ss.slice(11,16))};}
+function rateDay(j,ds,part){const di=j.daily.time.indexOf(ds);const w=sitWindow(j,ds,part);if(!w)return null;
+  const hiT=j.daily.temperature_2m_max[di],nm=normHi(ds);
+  const prev=[j.daily.temperature_2m_max[di-1],j.daily.temperature_2m_max[di-2]].filter(v=>typeof v==="number");
+  const prevAvg=prev.length?prev.reduce((a,b)=>a+b,0)/prev.length:null;
+  let lv=w.tmax<=61?0:w.tmax<=68?1:2;const why=[];
+  why.push(`Sit temp tops out at ${w.tmax}°F`);
+  if(nm!=null&&hiT-nm>=10){lv++;why.push(`day is ${Math.round(hiT-nm)}° above normal`);}
+  else if(nm!=null&&nm-hiT>=10){lv--;why.push(`day is ${Math.round(nm-hiT)}° below normal`);}
+  else if(prevAvg!=null&&prevAvg-hiT>=10){lv--;why.push(`${Math.round(prevAvg-hiT)}° cold drop from the last 2 days`);}
+  if(w.rain>=0.1&&w.sp<15){lv++;why.push(`steady rain (${w.rain.toFixed(2)}")`);}
+  lv=Math.max(0,Math.min(2,lv));
+  if(w.storm){lv=2;why.push("storm / downpour / heavy snow");}
+  return {lv,w,hiT:Math.round(hiT),nm:nm==null?null:Math.round(nm),why};}
+function windLv(stand,w){const sw=(window.STAND_WINDS||{})[stand];if(!sw)return null;
+  let l=sw.g.includes(w.dir)?0:sw.y.includes(w.dir)?1:2;if(w.sp<4&&l===0)l=1;return l;}
+function sits(){
+  if(!WXD||Date.now()-WXD.at>30*60*1000)wxLoad();
+  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Stand Sits</h1><span class="count">Hubbard Lake</span></div>`;
+  if(!WXD){h+=WXBUSY?`<p class="note">Loading forecast…</p>`:`<p class="err">${esc(WXERR)}</p><button class="retry" data-wxretry>Try again</button>`;$("v-sits").innerHTML=h;return;}
+  const j=WXD.j,tk=todayKey(),days=j.daily.time.filter(d=>d>=tk).slice(0,7);
+  if(SDAY>=days.length)SDAY=0;
+  const now=new Date();if(!SPART)SPART=now.getHours()<11?"AM":"PM";
+  h+=`<div class="days">`+days.map((d,i)=>{const dt=new Date(d+"T12:00");const a=rateDay(j,d,"AM"),p=rateDay(j,d,"PM");
+    return `<button class="dchip${i===SDAY?" on":""}" data-sday="${i}"><b>${i===0?"TODAY":dt.toLocaleDateString(undefined,{weekday:"short"}).toUpperCase()}</b><small>${dt.getMonth()+1}/${dt.getDate()}</small><i>${[a,p].map(r=>`<span style="--c:${r?LV[r.lv].c:"var(--line)"}"></span>`).join("")}</i></button>`;}).join("")+`</div>`;
+  h+=`<div class="seg">${["AM","PM"].map(p=>`<button data-spart="${p}" class="${p===SPART?"on":""}">${p} SIT</button>`).join("")}</div>`;
+  const ds=days[SDAY],r=rateDay(j,ds,SPART);
+  if(!r){h+=`<p class="note">No forecast hours for that sit.</p>`;$("v-sits").innerHTML=h;return;}
+  const w=r.w;
+  h+=`<div class="sum" style="--c:${LV[r.lv].c}"><div class="big"><b>Temp: ${LV[r.lv].t}</b><span>${w.tmax}°</span></div>
+    <p><strong>${w.from} – ${w.to}</strong> · wind <strong>${w.dir} ${w.sp} mph</strong>${w.sp<4?" (light, may swirl)":""}</p>
+    <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
+    <p>${esc(r.why.join(" · "))}</p></div>`;
+  const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
+  const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
+  h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr class="${x.all===2?"dead":""}"><td>${esc(x.s)}</td><td><span class="lt" style="--c:${LV[x.tl===2?2:x.wl].c}">${LV[x.tl===2?2:x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
+  if(r.lv===2)h+=`<p class="note">Temp is red, so every stand is red. Save your best stands for a better sit.</p>`;
+  const ago=Math.round((Date.now()-WXD.at)/60000);
+  h+=`<p class="note">Forecast updated ${ago<1?"just now":ago<60?ago+" min ago":Math.round(ago/60)+" hr ago"}.${WXERR?" "+esc(WXERR):""} Wind is the average direction for the sit, blowing from.</p>`;
+  h+=`<details class="how"><summary>How it's rated</summary><div class="dbody"><ul>
+    <li><b>Temp</b>: warmest temp during the sit. 61° or less green, 62–68 yellow, 69+ red. Deer activity peaks at 43–61°F (Beier &amp; McCullough, Michigan study).</li>
+    <li>10°+ above the Alpena normal for the date: one level worse. 10°+ below normal, or a 10°+ cold drop from the last 2 days: one level better.</li>
+    <li>Steady rain (0.1"+ during the sit) knocks it down one, unless the wind is 15+ mph. Storms, downpours and heavy snow are red.</li>
+    <li><b>Wind</b>: each stand's good and iffy directions. Under 4 mph is capped at Iffy because it swirls.</li>
+    <li>Red temp makes every stand red. Moon, barometer and wind speed don't count.</li></ul></div></details>`;
+  $("v-sits").innerHTML=h;
+}
+
 // ---------- router ----------
 let VIEW="home",VIEWID=null;
 // Each page entry remembers which page came before it, so the in-app "‹ Back" links step back
@@ -319,13 +430,13 @@ function markNav(){const st=history.state;
 function goBackTo(target){const st=history.state;target=target||"#";
   if(st&&st.i>0&&(st.prev||"#")===target)history.back();else location.replace(target);}
 function route(){markNav();const h=location.hash.slice(1);let v="home",id=null;
-  if(h==="g")v="gallery";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
   if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
-  ["home","buck","gallery","seen"].forEach(k=>$("v-"+k).hidden=k!==v);
+  ["home","buck","gallery","seen","sits"].forEach(k=>$("v-"+k).hidden=k!==v);
   draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
 }
-function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);}
+function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();}
 addEventListener("hashchange",route);
 addEventListener("scroll",()=>{if(VIEW==="home")try{sessionStorage.setItem("bb-y",String(scrollY))}catch(e){}},{passive:true});
 
@@ -342,6 +453,9 @@ window.BBApp={
 // ---------- clicks ----------
 document.addEventListener("click",e=>{
   const bk=e.target.closest("a.back");if(bk){e.preventDefault();goBackTo(bk.getAttribute("href"));return;}
+  const sd=e.target.closest("[data-sday]");if(sd){SDAY=+sd.dataset.sday;const dl=document.querySelector(".days"),sl=dl?dl.scrollLeft:0;sits();const nd=document.querySelector(".days");if(nd)nd.scrollLeft=sl;return;}
+  const sp=e.target.closest("[data-spart]");if(sp){SPART=sp.dataset.spart;const dl=document.querySelector(".days"),sl=dl?dl.scrollLeft:0;sits();const nd=document.querySelector(".days");if(nd)nd.scrollLeft=sl;return;}
+  if(e.target.closest("[data-wxretry]")){wxLoad();sits();return;}
   const rm=e.target.closest("[data-delseen]");if(rm){
     if(!rm.classList.contains("armed")){rm.classList.add("armed");rm.textContent="Tap again to remove";clearTimeout(rm._t);rm._t=setTimeout(()=>{rm.classList.remove("armed");rm.textContent="🗑 Remove";},4000);return;}
     const sv=(LIVE.seen[VIEWID]||[]).find(x=>x._id===rm.dataset.delseen);if(!sv)return;
