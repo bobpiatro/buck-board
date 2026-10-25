@@ -405,8 +405,8 @@ function sits(){
     <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
     <p>${esc(r.why.join(" · "))}</p></div>`;
   const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
-  const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
-  h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr class="${x.all===2?"dead":""}"><td>${esc(x.s)}</td><td><span class="lt" style="--c:${LV[x.tl===2?2:x.wl].c}">${LV[x.tl===2?2:x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
+  const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;const w2=tl===2?2:wl;return {s,wl,tl,all:Math.max(wl,tl),nm:w2===tl?tl:1};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
+  h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt" style="--c:${LV[x.tl===2?2:x.wl].c}">${LV[x.tl===2?2:x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
   if(r.lv===2)h+=`<p class="note">Temp is red, so every stand is red. Save your best stands for a better sit.</p>`;
   const ago=Math.round((Date.now()-WXD.at)/60000);
   h+=`<p class="note">Forecast updated ${ago<1?"just now":ago<60?ago+" min ago":Math.round(ago/60)+" hr ago"}.${WXERR?" "+esc(WXERR):""} Wind is the average direction for the sit, blowing from.</p>`;
