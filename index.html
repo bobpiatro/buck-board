@@ -423,7 +423,7 @@ function sits(){
     <div class="sumrow"><div class="sumtxt"><p><strong>${w.from} – ${w.to}</strong></p>
     <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
     <p class="why">${esc(r.why.join(" · "))}</p></div>${windDial(w)}</div></div>`;
-  if(r.lv===2)h+=`<div class="tempban">TOO WARM · TEMP KILLS THIS SIT</div>`;
+  if(r.lv===2)h+=`<div class="tempban">${w.storm?"STORM":w.tmax>61?"TOO WARM":"BAD WEATHER"} · TEMP KILLS THIS SIT</div>`;
   const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
   const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl),nm:tl===2?2:(wl===tl?tl:1)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
   h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt${x.tl===2?" dim":""}" style="--c:${LV[x.wl].c}">${LV[x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
