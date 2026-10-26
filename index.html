@@ -167,6 +167,7 @@ details[open] summary::after{transform:rotate(180deg)}
 .sum .why{color:var(--c);font-weight:600}
 .tempban{margin-top:10px;background:var(--young);color:var(--ink);border-radius:8px;padding:9px 12px;font:700 1.05rem var(--display);letter-spacing:.06em;text-align:center}
 .lt.dim{opacity:.4}
+.src{margin-top:12px;font-size:.88rem;color:var(--fg)}.src a{color:var(--accent);font-weight:600;white-space:nowrap}
 .dial{flex:none;display:grid;justify-items:center;gap:0}
 .dial svg{display:block}
 .dlab{font:700 1.15rem var(--display);letter-spacing:.05em;margin-top:2px}
@@ -357,18 +358,56 @@ function seenForm(id){const b=byId(id);if(!b){location.hash="";return;}
 //        Steady rain (0.1"+ in the window) = one level worse unless wind averages 15+ mph. Storm / downpour / heavy snow = red.
 //  Wind: each stand's green / yellow directions; anything else red. Under 4 mph = light and swirly, capped at yellow.
 //  Red temp turns every stand red. Moon, pressure and wind speed don't count (no support in the GPS studies).
-const WX={lat:44.79,lon:-83.56,key:"bb-wx"};
+// Forecast: National Weather Service (api.weather.gov), hourly, for the property's grid point.
+// NWS hourly only runs forward from now, so every load is merged into a saved copy on the phone;
+// that keeps today's earlier hours and the last 2 days for the cold-drop check.
+const WX={lat:44.79,lon:-83.56,key:"bb-nws",tz:"America/Detroit"};
 const LV=[{t:"Good",c:"var(--shoot)"},{t:"Iffy",c:"var(--mid)"},{t:"No",c:"var(--young)"}];
 const PTS=["N","NE","E","SE","S","SW","W","NW"];
-const STORM=new Set([65,67,75,82,86,95,96,99]);
+const P16=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+const OFFICES={APX:"Gaylord",DTX:"Detroit",GRR:"Grand Rapids",MQT:"Marquette"};
+const STORMRX=/thunder|t-storm|heavy rain|heavy snow|blizzard|freezing rain|ice storm/i;
 let WXD=null,WXERR="",WXBUSY=false,SDAY=0,SPART=null;
 try{WXD=JSON.parse(ls.get(WX.key)||"null");}catch(e){}
+try{ls.del("bb-wx");}catch(e){}
 function normHi(ds){const m=+ds.slice(5,7),d=+ds.slice(8,10),a=(window.NORMAL_HIGH||{})[m];if(!a)return null;return a[Math.min(d,a.length)-1];}
-function wxLoad(){if(WXBUSY)return;WXBUSY=true;WXERR="";
-  const u=`https://api.open-meteo.com/v1/forecast?latitude=${WX.lat}&longitude=${WX.lon}&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FDetroit&past_days=2&forecast_days=8`;
-  fetch(u).then(r=>{if(!r.ok)throw 0;return r.json();}).then(j=>{if(!j.hourly||!j.daily)throw 0;WXD={j,at:Date.now()};ls.set(WX.key,JSON.stringify(WXD));})
-    .catch(()=>{WXERR=WXD?"Couldn't refresh. Showing the last forecast saved on this phone.":"Couldn't load the forecast. Check your signal.";})
-    .finally(()=>{WXBUSY=false;if(VIEW==="sits")sits();});}
+const LOCF=new Intl.DateTimeFormat("en-CA",{timeZone:WX.tz,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+function loc(ms){const o={};LOCF.formatToParts(new Date(ms)).forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}T${o.hour}:${o.minute}`;}
+// Sunrise / sunset (standard sunrise equation, ~1 min accuracy). Returns local "YYYY-MM-DDTHH:MM".
+function sun(ds){const rad=Math.PI/180,[y,m,d]=ds.split("-").map(Number);
+  const n=Math.round(Date.UTC(y,m-1,d,12)/86400000+2440587.5-2451545+0.0008),J=n-WX.lon/360;
+  const M=(357.5291+0.98560028*J)%360,C=1.9148*Math.sin(M*rad)+0.02*Math.sin(2*M*rad)+0.0003*Math.sin(3*M*rad);
+  const L=(M+C+180+102.9372)%360,Jt=2451545+J+0.0053*Math.sin(M*rad)-0.0069*Math.sin(2*L*rad);
+  const dec=Math.asin(Math.sin(L*rad)*Math.sin(23.4397*rad));
+  const w0=Math.acos((Math.sin(-0.833*rad)-Math.sin(WX.lat*rad)*Math.sin(dec))/(Math.cos(WX.lat*rad)*Math.cos(dec)))/rad;
+  const ms=jd=>(jd-2440587.5)*86400000;return {rise:loc(ms(Jt-w0/360)),set:loc(ms(Jt+w0/360))};}
+const isoDur=s=>{const m=/P(?:(\d+)D)?T?(?:(\d+)H)?/.exec(s)||[];return (+(m[1]||0))*24+(+(m[2]||0))||1;};
+function wxBuild(hours){ // saved hours -> the shape the rating code reads
+  const keys=Object.keys(hours).sort(),H={time:[],temperature_2m:[],precipitation:[],storm:[],wind_speed_10m:[],wind_direction_10m:[]},hi={};
+  keys.forEach(k=>{const x=hours[k];H.time.push(k);H.temperature_2m.push(x.t);H.precipitation.push(x.p||0);H.storm.push(!!x.s);H.wind_speed_10m.push(x.ws);H.wind_direction_10m.push(x.wd);
+    const d=k.slice(0,10);hi[d]=Math.max(hi[d]??-999,x.t);});
+  const days=Object.keys(hi).sort(),D={time:days,temperature_2m_max:days.map(d=>hi[d]),sunrise:[],sunset:[]};
+  days.forEach(d=>{const s=sun(d);D.sunrise.push(s.rise);D.sunset.push(s.set);});
+  return {hourly:H,daily:D};}
+async function wxLoad(){if(WXBUSY)return;WXBUSY=true;WXERR="";
+  try{const get=async u=>{const r=await fetch(u,{headers:{Accept:"application/geo+json"}});if(!r.ok)throw new Error(r.status);return r.json();};
+    let pt=WXD&&WXD.pt;
+    if(!pt){const j=await get(`https://api.weather.gov/points/${WX.lat},${WX.lon}`);const q=j.properties;pt={hourly:q.forecastHourly,grid:q.forecastGridData,office:q.gridId};}
+    const [hr,gd]=await Promise.all([get(pt.hourly),get(pt.grid).catch(()=>null)]);
+    const qpf={};
+    if(gd&&gd.properties&&gd.properties.quantitativePrecipitation){(gd.properties.quantitativePrecipitation.values||[]).forEach(v=>{
+      const [st,du]=v.validTime.split("/"),n=isoDur(du),each=(v.value||0)/25.4/n,t0=Date.parse(st);
+      for(let i=0;i<n;i++)qpf[loc(t0+i*3600000).slice(0,13)+":00"]=each;});}
+    const hours=Object.assign({},WXD&&WXD.hours);
+    hr.properties.periods.forEach(p=>{const k=loc(Date.parse(p.startTime)).slice(0,13)+":00";
+      const sp=(String(p.windSpeed).match(/\d+/g)||["0"]).map(Number),ws=sp.reduce((a,b)=>a+b,0)/sp.length;
+      const di=P16.indexOf(p.windDirection),pop=(p.probabilityOfPrecipitation&&p.probabilityOfPrecipitation.value)||0;
+      const f=p.shortForecast||"";let pr=qpf[k];if(pr==null)pr=/rain|shower|snow|drizzle/i.test(f)&&pop>=60?0.05:0;
+      hours[k]={t:p.isFahrenheit===false||p.temperatureUnit==="C"?p.temperature*9/5+32:p.temperature,ws,wd:di<0?0:di*22.5,p:pr,s:STORMRX.test(f)};});
+    const cut=loc(Date.now()-3*86400000).slice(0,10);Object.keys(hours).forEach(k=>{if(k<cut)delete hours[k];});
+    WXD={pt,hours,at:Date.now()};ls.set(WX.key,JSON.stringify(WXD));}
+  catch(e){WXERR=WXD?"Couldn't refresh. Showing the last forecast saved on this phone.":"Couldn't load the forecast. Check your signal.";}
+  finally{WXBUSY=false;if(VIEW==="sits")sits();}}
 function sitWindow(j,ds,part){const di=j.daily.time.indexOf(ds);if(di<0)return null;
   const sr=j.daily.sunrise[di],ss=j.daily.sunset[di],h=j.hourly,idx=[];
   // AM: the hour sunrise falls in through 10 AM. PM: 3 PM through the hour sunset falls in.
@@ -377,7 +416,7 @@ function sitWindow(j,ds,part){const di=j.daily.time.indexOf(ds);if(di<0)return n
   if(!idx.length)return null;
   const tmax=Math.max(...idx.map(i=>h.temperature_2m[i]));
   const rain=idx.reduce((a,i)=>a+(h.precipitation[i]||0),0);
-  const storm=idx.some(i=>STORM.has(h.weather_code[i]));
+  const storm=idx.some(i=>h.storm[i]);
   let x=0,y=0,sp=0;idx.forEach(i=>{const s=h.wind_speed_10m[i]||0,r=(h.wind_direction_10m[i]||0)*Math.PI/180;x+=s*Math.sin(r);y+=s*Math.cos(r);sp+=s;});
   sp/=idx.length;const deg=(Math.atan2(x,y)*180/Math.PI+360)%360;
   return {tmax:Math.round(tmax),rain,storm,sp:Math.round(sp),deg,dir:PTS[Math.round(deg/45)%8],from:fmtTime(lo.slice(11)),to:part==="AM"?"10:00 AM":fmtTime(ss.slice(11,16))};}
@@ -409,8 +448,8 @@ function windDial(w){const k=WSPD.find(x=>w.sp<=x.max),to=(w.deg+180)%360;
 function sits(){
   if(!WXD||Date.now()-WXD.at>30*60*1000)wxLoad();
   let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Stands</h1><span class="count">Hubbard Lake</span></div>`;
-  if(!WXD){h+=WXBUSY?`<p class="note">Loading forecast…</p>`:`<p class="err">${esc(WXERR)}</p><button class="retry" data-wxretry>Try again</button>`;$("v-sits").innerHTML=h;return;}
-  const j=WXD.j,tk=todayKey(),days=j.daily.time.filter(d=>d>=tk).slice(0,7);
+  if(!WXD||!WXD.hours){h+=WXBUSY?`<p class="note">Loading forecast…</p>`:`<p class="err">${esc(WXERR)}</p><button class="retry" data-wxretry>Try again</button>`;$("v-sits").innerHTML=h;return;}
+  const j=wxBuild(WXD.hours||{}),tk=todayKey(),days=j.daily.time.filter(d=>d>=tk).slice(0,7);
   if(SDAY>=days.length)SDAY=0;
   const now=new Date();if(!SPART)SPART=now.getHours()<11?"AM":"PM";
   h+=`<div class="days">`+days.map((d,i)=>{const dt=new Date(d+"T12:00");const a=rateDay(j,d,"AM"),p=rateDay(j,d,"PM");
@@ -428,7 +467,9 @@ function sits(){
   const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl),nm:tl===2?2:(wl===tl?tl:1)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
   h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt${x.tl===2?" dim":""}" style="--c:${LV[x.wl].c}">${LV[x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
   const ago=Math.round((Date.now()-WXD.at)/60000);
-  h+=`<p class="note">Forecast updated ${ago<1?"just now":ago<60?ago+" min ago":Math.round(ago/60)+" hr ago"}.${WXERR?" "+esc(WXERR):""} Wind is the average direction for the sit, blowing from.</p>`;
+  const off=WXD.pt&&WXD.pt.office;
+  h+=`<p class="src">Forecast: <b>National Weather Service</b>${off?` · ${esc(OFFICES[off]||off)} office`:""} · hourly for the property · updated ${ago<1?"just now":ago<60?ago+" min ago":Math.round(ago/60)+" hr ago"}. <a href="https://forecast.weather.gov/MapClick.php?lat=${WX.lat}&lon=${WX.lon}" target="_blank" rel="noopener">Check it on weather.gov ›</a></p>`;
+  h+=`<p class="note">${WXERR?esc(WXERR)+" ":""}Wind is the average direction for the sit, blowing from. Other apps (WeatherBug, etc.) use their own forecasts and can differ a few degrees, more so 4+ days out.</p>`;
   h+=`<details class="how"><summary>How it's rated</summary><div class="dbody"><ul>
     <li><b>Temp</b>: warmest temp during the sit. 61° or less green, 62–68 yellow, 69+ red. Deer activity peaks at 43–61°F (Beier &amp; McCullough, Michigan study).</li>
     <li>10°+ above the Alpena normal for the date: one level worse. 10°+ below normal, or a 10°+ cold drop from the last 2 days: one level better.</li>
