@@ -63,6 +63,9 @@ window.BUCKS = [
  {id:"C",name:"SMIRK",g:"young",age:"1.5",pts:"4–6",dn:"Day",rep:"Possible @E",
   note:"Lip-curling. Thin neck, leggy, small narrow rack. Clearest young buck in the set.",
   hist:[{added:"10/17/26",pics:["C"]}]},
+ {id:"S",name:"NAME TBD",cover:"S-2",g:"unk",age:"3.5+?",pts:"8+ (your call)",dn:"Day",rep:"No match",
+  note:"Head only, behind brush at Powerline Tango. Tall rack with long G2s, at least 4 points on the side we can see, heavy-looking head and neck. Can't see spread vs ears or the body, so not aged yet. Calm in daylight at 47°F. Bob thinks mature. Move to Shooters or match once a better photo comes in.",
+  hist:[{added:"10/26/26",date:"10/26/26",time:"9:09 AM",temp:"47°F",cam:"Powerline Tango (Spypoint Flex-M)",pics:["S","S-2"]}]},
  {id:"B",name:"GHOST",g:"unk",age:"Unknown",pts:"8 (your call)",dn:"Night",rep:"No match",
   note:"Motion blur in the ferns. Different spot from the other cameras.",
   hist:[{added:"10/17/26",pics:["B"]}]}
