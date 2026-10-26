@@ -167,6 +167,14 @@ details[open] summary::after{transform:rotate(180deg)}
 .sum .why{color:var(--c);font-weight:600}
 .tempban{margin-top:10px;background:var(--young);color:var(--ink);border-radius:8px;padding:9px 12px;font:700 1.05rem var(--display);letter-spacing:.06em;text-align:center}
 .lt.dim{opacity:.4}
+.ssum{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.ssum h3{margin:0 0 8px;font:700 1.15rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ssum ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ssum li{display:flex;gap:9px;align-items:flex-start;font-size:.95rem;line-height:1.35}
+.ssum li b,.ssum p b{color:var(--fg)}
+.ssum li span:last-child{color:var(--muted)}
+.sdot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--c);margin-top:6px}
+.ssum p{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--line);font-size:.95rem;color:var(--muted)}
 .src{margin-top:12px;font-size:.88rem;color:var(--fg)}.src a{color:var(--accent);font-weight:600;white-space:nowrap}
 .dial{flex:none;display:grid;justify-items:center;gap:0}
 .dial svg{display:block}
@@ -432,7 +440,35 @@ function rateDay(j,ds,part){const di=j.daily.time.indexOf(ds);const w=sitWindow(
   if(w.rain>=0.1&&w.sp<15){lv++;why.push(`steady rain (${w.rain.toFixed(2)}")`);}
   lv=Math.max(0,Math.min(2,lv));
   if(w.storm){lv=2;why.push("storm / downpour / heavy snow");}
-  return {lv,w,hiT:Math.round(hiT),nm:nm==null?null:Math.round(nm),why};}
+  const diff=nm==null?null:Math.round(hiT-nm),drop=prevAvg==null?null:Math.round(prevAvg-hiT);
+  return {lv,w,hiT:Math.round(hiT),nm:nm==null?null:Math.round(nm),why,diff,drop};}
+// Plain-English "why" for the sit: one line per thing that moved the rating, then the best stands.
+function sitSummary(r,rows){const w=r.w,L=[];
+  const dot=c=>`<span class="sdot" style="--c:${c}"></span>`;
+  // temp
+  if(w.tmax>=69)L.push([LV[2].c,`<b>Too warm.</b> Sit temp hits ${w.tmax}°. Deer move most at 43–61°F, so expect them on their feet only at first or last light, if at all.`]);
+  else if(w.tmax>=62)L.push([LV[1].c,`<b>Warm.</b> Sit temp hits ${w.tmax}°, just over the 61° line where deer slow down.`]);
+  else L.push([LV[0].c,`<b>Temp is right.</b> Sit temp tops out at ${w.tmax}°, inside the 43–61° range deer move most in.`]);
+  if(r.diff!=null&&r.diff>=10)L.push([LV[2].c,`<b>${r.diff}° above normal</b> for the date (normal high ${r.nm}°). Warm for the season pushes movement to night. Knocked down one level.`]);
+  else if(r.diff!=null&&r.diff<=-10)L.push([LV[0].c,`<b>${-r.diff}° below normal</b> for the date. Cold for the season gets deer up in daylight. Bumped up one level.`]);
+  else if(r.drop!=null&&r.drop>=10)L.push([LV[0].c,`<b>Cold drop.</b> ${r.drop}° cooler than the last 2 days. Bumped up one level.`]);
+  // rain / storm
+  if(w.storm)L.push([LV[2].c,`<b>Storm in the forecast</b> during the sit (thunder, downpour or heavy snow). Deer bed down while it's falling. Sit is red.`]);
+  else if(w.rain>=0.1&&w.sp<15)L.push([LV[1].c,`<b>Steady rain</b>, about ${w.rain.toFixed(2)}" during the sit. Bucks move less in rain (Penn State collar study). Knocked down one level.`]);
+  else if(w.rain>=0.1)L.push([LV[0].c,`<b>Rain with ${w.sp} mph wind.</b> Wind cancels the rain penalty, so no change.`]);
+  else if(w.rain>=0.01)L.push([LV[0].c,`<b>Light rain</b> only (${w.rain.toFixed(2)}"). No effect.`]);
+  // wind
+  if(w.sp<4)L.push([LV[1].c,`<b>Calm wind (${w.sp} mph).</b> Direction is unreliable this light and your scent can swirl any way. Stands that are good on ${w.dir} are capped at Iffy.`]);
+  else if(w.sp>=18)L.push([LV[0].c,`<b>Strong wind (${w.sp} mph) from ${w.dir}.</b> Doesn't change the rating. Scent carries far and steady, and it covers walk-in noise.`]);
+  else L.push([LV[0].c,`<b>Steady ${w.dir} wind, ${w.sp} mph.</b> Direction is reliable. Pick a stand that's good on ${w.dir}.`]);
+  // bottom line
+  const best=rows.filter(x=>x.all===0).map(x=>x.s),ok=rows.filter(x=>x.all===1).map(x=>x.s);
+  let bl;
+  if(r.lv===2)bl=`<b>Bottom line:</b> ${w.storm?"the storm":"the heat"} kills this sit for every stand. Save your best stands for a better day.`;
+  else if(best.length)bl=`<b>Best bets:</b> ${best.map(esc).join(", ")}.`;
+  else if(ok.length)bl=`<b>No stand rates Good.</b> Best available (Iffy): ${ok.map(esc).join(", ")}.`;
+  else bl=`<b>No stand works</b> on a ${w.dir} wind this sit.`;
+  return `<div class="ssum"><h3>Sit summary</h3><ul>${L.map(x=>`<li>${dot(x[0])}<span>${x[1]}</span></li>`).join("")}</ul><p>${bl}</p></div>`;}
 function windLv(stand,w){const sw=(window.STAND_WINDS||{})[stand];if(!sw)return null;
   let l=sw.g.includes(w.dir)?0:sw.y.includes(w.dir)?1:2;if(w.sp<4&&l===0)l=1;return l;}
 // Wind dial: N/E/S/W ring, arrow flies the way the wind blows (tail on the side it comes from). Color = speed.
@@ -461,10 +497,11 @@ function sits(){
   h+=`<div class="sum" style="--c:${LV[r.lv].c}"><div class="big"><b>Temp: ${LV[r.lv].t}</b><span style="color:var(--c)">${w.tmax}°</span></div>
     <div class="sumrow"><div class="sumtxt"><p><strong>${w.from} – ${w.to}</strong></p>
     <p>Day high ${r.hiT}°${r.nm!=null?` · normal ${r.nm}°`:""}${w.rain>=0.01?` · rain ${w.rain.toFixed(2)}"`:""}</p>
-    <p class="why">${esc(r.why.join(" · "))}</p></div>${windDial(w)}</div></div>`;
+</div>${windDial(w)}</div></div>`;
   if(r.lv===2)h+=`<div class="tempban">${w.storm?"STORM":w.tmax>61?"TOO WARM":"BAD WEATHER"} · TEMP KILLS THIS SIT</div>`;
   const list=STANDS.flatMap(g=>g.list).filter(s=>(window.STAND_WINDS||{})[s]);
   const rows=list.map(s=>{const wl=windLv(s,w),tl=r.lv;return {s,wl,tl,all:Math.max(wl,tl),nm:Math.max(wl,tl)};}).sort((a,b)=>a.all-b.all||a.wl-b.wl);
+  h+=sitSummary(r,rows);
   h+=`<table class="st"><thead><tr><th>Stand</th><th>Wind ${w.dir}</th><th>Temp</th></tr></thead><tbody>`+rows.map(x=>`<tr><td style="color:${LV[x.nm].c}">${esc(x.s)}</td><td><span class="lt${x.tl===2?" dim":""}" style="--c:${LV[x.wl].c}">${LV[x.wl].t}</span></td><td><span class="lt" style="--c:${LV[x.tl].c}">${LV[x.tl].t}</span></td></tr>`).join("")+`</tbody></table>`;
   const ago=Math.round((Date.now()-WXD.at)/60000);
   const off=WXD.pt&&WXD.pt.office;
