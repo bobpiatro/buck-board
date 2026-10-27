@@ -93,3 +93,13 @@ window.NORMAL_HIGH = {
   12:[37.7,37.4,36.9,36.5,36.1,35.8,35.5,35.2,35.0,34.6,34.3,34.0,33.8,33.5,33.2,32.9,32.7,32.4,32.1,31.9,31.8,31.7,31.5,31.3,31.1,30.9,30.8,30.7,30.5,30.2,30.0],
   1:[30.0]
 };
+
+// ---------- Harvested tab ----------
+// Newest first. pics are files in img/. Leave a field "" if unknown.
+window.HARVEST = [
+ {id:"HV1",buck:"Not named yet",date:"10/26/26",time:"",hunter:"Duce",weapon:"Crossbow",stand:"Duce Bow blind",
+  temp:"About 50°F",tempNote:"Property cams read 50°F at 5:31 and 5:58 PM",wind:"",
+  pts:"7–8 (split tip on one beam)",age:"",
+  note:"New buck. Never on any of our cameras. Easy tell: the split, slightly palmated tip at the end of one beam. Long sweeping beams, one side a beam with a short brow and one long tine.",
+  pics:["HV1"]}
+];

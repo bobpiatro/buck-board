@@ -168,6 +168,17 @@ details[open] summary::after{transform:rotate(180deg)}
 .sum .why{color:var(--c);font-weight:600}
 .tempban{margin-top:10px;background:var(--young);color:var(--ink);border-radius:8px;padding:9px 12px;font:700 1.05rem var(--display);letter-spacing:.06em;text-align:center}
 .lt.dim{opacity:.4}
+.hcount{background:var(--accent);color:var(--ink);border-radius:99px;padding:0 7px;font:700 .8rem var(--body);margin-left:2px}
+.hv{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.hvhd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hvtag{background:var(--shoot);color:var(--ink);font:700 .85rem var(--display);letter-spacing:.1em;padding:2px 10px;border-radius:4px}
+.hvwho{font:600 .9rem var(--mono);color:var(--muted)}
+.hv .hero{margin-top:10px}
+.hvname{margin:10px 0 6px;font:700 1.7rem var(--display);letter-spacing:.05em}
+.hvrows{padding:0}
+.hvrows small{color:var(--muted);font-size:.78rem}
+.hvnote{margin:10px 0 0;font-size:.92rem;color:var(--muted)}
+@media (max-width:460px){.topbtns .galbtn{padding:10px 6px;gap:4px;font-size:.92rem}}
 .ssum{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .ssum h3{margin:0 0 8px;font:700 1.15rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ssum ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -228,6 +239,7 @@ details[open] summary::after{transform:rotate(180deg)}
 <main class="view" id="v-gallery" hidden></main>
 <main class="view" id="v-seen" hidden></main>
 <main class="view" id="v-sits" hidden></main>
+<main class="view" id="v-harv" hidden></main>
 
 <div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-title">
   <form id="dlg-form" novalidate>
@@ -302,7 +314,8 @@ const $=id=>document.getElementById(id);
 function home(){
   let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
     <div class="topbtns"><a class="galbtn hot" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>STANDS</a>
-    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a></div></div>`;
+    <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a>
+    <a class="galbtn" href="#h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3v6a6 6 0 0 0 12 0V3M12 15v6M8 21h8"/></svg>HARVESTED${(window.HARVEST||[]).length?` <span class="hcount">${window.HARVEST.length}</span>`:""}</a></div></div>`;
   for(const g of GROUPS){const list=BUCKS.filter(b=>b.g===g.key);if(!list.length)continue;
     h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
     for(const b of list){const s=seenOf(b.id)[0];
@@ -518,6 +531,19 @@ function sits(){
   $("v-sits").innerHTML=h;
 }
 
+// ---------- harvested ----------
+function harvested(){const L=window.HARVEST||[];
+  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Harvested</h1><span class="count">${L.length} buck${L.length===1?"":"s"}</span></div>`;
+  if(!L.length)h+=`<p class="empty">Nothing tagged yet.</p>`;
+  L.forEach((x,i)=>{const rows=[["Date",[x.date,x.time].filter(Boolean).join(" · ")],["Hunter",x.hunter],["Weapon",x.weapon],["Stand",x.stand],
+      ["Temp",x.temp?x.temp+(x.tempNote?` <small>(${esc(x.tempNote)})</small>`:""):""],["Wind",x.wind],["Points",x.pts],["Age",x.age]]
+      .filter(r=>r[1]).map(r=>`<div class="row"><span>${r[0]}</span><span>${r[0]==="Temp"?r[1].replace(/^([^<]*)/,m=>esc(m)):esc(r[1])}</span></div>`).join("");
+    h+=`<section class="hv"><div class="hvhd"><span class="hvtag">TAGGED</span><span class="hvwho">${esc(x.hunter||"")}${x.date?` · ${esc(x.date.slice(0,5).replace(/^0/,""))}`:""}</span></div>
+      <button class="hero" data-hv="${i}" aria-label="Open photo"><img src="img/${x.pics[0]}.jpg" alt="${esc(x.buck||"Harvested buck")}"></button>
+      <h2 class="hvname">${esc(x.buck||"Not named")}</h2>
+      <div class="dbody hvrows">${rows}</div>${x.note?`<p class="hvnote">${esc(x.note)}</p>`:""}</section>`;});
+  $("v-harv").innerHTML=h;}
+
 // ---------- router ----------
 let VIEW="home",VIEWID=null;
 // Each page entry remembers which page came before it, so the in-app "‹ Back" links step back
@@ -530,13 +556,13 @@ function markNav(){const st=history.state;
 function goBackTo(target){const st=history.state;target=target||"#";
   if(st&&st.i>0&&(st.prev||"#")===target)history.back();else location.replace(target);}
 function route(){markNav();const h=location.hash.slice(1);let v="home",id=null;
-  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h==="h")v="harv";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
   if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
-  ["home","buck","gallery","seen","sits"].forEach(k=>$("v-"+k).hidden=k!==v);
+  ["home","buck","gallery","seen","sits","harv"].forEach(k=>$("v-"+k).hidden=k!==v);
   draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
 }
-function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();}
+function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();else if(VIEW==="harv")harvested();}
 addEventListener("hashchange",route);
 addEventListener("scroll",()=>{if(VIEW==="home")try{sessionStorage.setItem("bb-y",String(scrollY))}catch(e){}},{passive:true});
 
@@ -566,6 +592,7 @@ document.addEventListener("click",e=>{
   const un=e.target.closest("[data-undo]");if(un){const x=LIVE.log[+un.dataset.undo];if(x)openEdit(x.field==="pts"?"pts":"name",x.id,x.from);return;}
   const pk=e.target.closest("[data-pick]");if(pk){const b=byId(VIEWID),p=pics(b)[+pk.dataset.pick];$("hero").dataset.i=pk.dataset.pick;$("hero").querySelector("img").src=`img/${p}.jpg`;document.querySelectorAll(".strip button").forEach(x=>x.classList.toggle("on",x===pk));return;}
   if(e.target.closest("#hero")){const b=byId(VIEWID);openViewer(pics(b).map(p=>({id:b.id,p})),+$("hero").dataset.i);return;}
+  const hv=e.target.closest("[data-hv]");if(hv){const x=(window.HARVEST||[])[+hv.dataset.hv];if(x)openViewer(x.pics.map(p=>({id:x.id,p,label:(x.buck||"Harvested")+" · "+(x.hunter||"")})),0);return;}
   const t=e.target.closest("[data-g]");if(t){openViewer(GALLERY,+t.dataset.g);return;}
   const one=e.target.closest("[data-pick-one] button");if(one){const grp=one.parentElement.dataset.pickOne,was=one.classList.contains("on");
     document.querySelectorAll(`[data-pick-one="${grp}"] button`).forEach(x=>x.classList.remove("on"));
@@ -645,7 +672,7 @@ let vlist=[],vi=0,sc=1,tx=0,ty=0,vLast=null;
 function openViewer(list,i){vLast=document.activeElement;vlist=list;if(vw.hidden)ovPush();vw.hidden=false;document.documentElement.classList.add("locked");vShow(i);$("vw-close").focus();}
 function closeViewer(){if(ovBack())return;hideViewer();}
 function hideViewer(){vw.hidden=true;vmsg.hidden=true;document.documentElement.classList.remove("locked");vLast&&vLast.focus();}
-function vShow(i){vi=i;const x=vlist[i];vimg.src=`img/${x.p}.jpg`;vimg.alt=nameOf(x.id);$("vw-name").textContent=nameOf(x.id);
+function vShow(i){vi=i;const x=vlist[i];const nm=x.label||nameOf(x.id);vimg.src=`img/${x.p}.jpg`;vimg.alt=nm;$("vw-name").textContent=nm;
   $("vw-count").textContent=vlist.length>1?`${i+1} of ${vlist.length}`:"";$("vw-prev").disabled=i===0;$("vw-next").disabled=i===vlist.length-1;reset();}
 function vStep(d){const j=vi+d;if(j<0||j>=vlist.length){vmsg.textContent=d>0?"Last photo":"First photo";vmsg.hidden=false;stage.style.setProperty("--nx",(d>0?-24:24)+"px");stage.classList.remove("bump");void stage.offsetWidth;stage.classList.add("bump");setTimeout(()=>{vmsg.hidden=true;stage.classList.remove("bump");},1100);return;}vmsg.hidden=true;vShow(j);}
 function clampPan(){const r=stage.getBoundingClientRect(),w=vimg.offsetWidth*sc,h=vimg.offsetHeight*sc,mx=Math.max(0,(w-r.width)/2),my=Math.max(0,(h-r.height)/2);tx=Math.min(mx,Math.max(-mx,tx));ty=Math.min(my,Math.max(-my,ty));}
