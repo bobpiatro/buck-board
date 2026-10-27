@@ -2,7 +2,7 @@
 // Names, points and seen-live sightings edited by the group live in Firebase and override what's here.
 window.STANDS = [
   {group:"Gun blinds", list:["TC BOY","SHP","LMK","LTC","LRH","MTN TOP"]},
-  {group:"Bow stands", list:["SHROUD","LTC CLIMBER","LMK CLIMBER","LADDER"]},
+  {group:"Bow stands", list:["SHROUD","LTC CLIMBER","LMK CLIMBER","LADDER","DUCE BOW BLIND"]},
   {group:"", list:["OTHER"]}
 ];
 
@@ -83,7 +83,8 @@ window.STAND_WINDS = {
   "SHROUD":      {g:["N","NW"], y:["NE"]},
   "LTC CLIMBER": {g:["NW","N","NE","E"], y:["W"]},
   "LMK CLIMBER": {g:["S","SE","SW"], y:["W","E"]},
-  "LADDER":      {g:["S","SE","SW"], y:["W","E"]}
+  "LADDER":      {g:["S","SE","SW"], y:["W","E"]},
+  "DUCE BOW BLIND": {g:["W","NW","N","SW"], y:["S","SE"]}
 };
 // Normal daily high (°F) at Alpena, 1991–2020 (closest long-record station). Index 0 = day 1.
 window.NORMAL_HIGH = {
@@ -97,7 +98,7 @@ window.NORMAL_HIGH = {
 // ---------- Harvested tab ----------
 // Newest first. pics are files in img/. Leave a field "" if unknown.
 window.HARVEST = [
- {id:"HV1",buck:"Not named yet",date:"10/26/26",time:"6:32 PM",hunter:"Duce",weapon:"Crossbow",stand:"Duce Bow blind (camp)",
+ {id:"HV1",buck:"DUCE DOWN",date:"10/26/26",time:"6:32 PM",hunter:"Duce",weapon:"Crossbow",stand:"DUCE BOW BLIND (camp)",
   temp:"47°F",tempNote:"NOAA Alpena station 6–7 PM; property cams read 50°F at 5:30–6 PM",wind:"N–NNW, 4–7 mph, dying off toward dark",
   pts:"7–8 (split tip on one beam)",age:"",
   note:"New buck. Never on any of our cameras. Easy tell: the split, slightly palmated tip at the end of one beam. Long sweeping beams, one side a beam with a short brow and one long tine.",
