@@ -44,6 +44,7 @@ button{font:inherit;color:inherit}
 .buck{display:block;margin:0 0 18px;color:inherit;text-decoration:none}
 .buck .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
 .buck .nm{font:700 1.7rem var(--display);letter-spacing:.05em;line-height:1;min-width:0;overflow-wrap:anywhere}
+.tbdsub{margin:-6px 0 12px;font-size:.88rem;color:var(--muted)}
 .buck .sct{margin:-2px 0 6px;font:600 .82rem var(--mono);color:var(--muted)}
 .buck .age{font:500 1rem var(--mono);color:var(--c);flex:none}
 .ph{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:#000}
@@ -319,10 +320,13 @@ function home(){
     <div class="topbtns"><a class="galbtn hot" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>STANDS</a>
     <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a>
     <a class="galbtn" href="#h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3v6a6 6 0 0 0 12 0V3M12 15v6M8 21h8"/></svg>HARVESTED${(window.HARVEST||[]).length?` <span class="hcount">${window.HARVEST.length}</span>`:""}</a></div></div>`;
-  for(const g of GROUPS){const list=BUCKS.filter(b=>b.g===g.key);if(!list.length)continue;
-    h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
-    for(const b of list){const s=seenOf(b.id)[0];
-      h+=`<a class="buck${b.top?" top":""}" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age">${esc(b.age)}</span></div>
+  const isTBD=b=>/^NAME TBD/i.test(nameOf(b.id));
+  const SECS=GROUPS.map(g=>({g,list:BUCKS.filter(b=>b.g===g.key&&!isTBD(b))}));
+  SECS.push({g:{title:"Name TBD",sub:"not matched yet · waiting on a corroborating sighting",c:"var(--accent)",tbd:true},list:BUCKS.filter(isTBD)});
+  for(const {g,list} of SECS){if(!list.length)continue;
+    h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.tbd?list.length:g.sub+" · "+list.length}</small></h2>${g.tbd?`<p class="tbdsub">${g.sub}</p>`:""}`;
+    for(const b of list){const s=seenOf(b.id)[0];const og=grpOf(b);
+      h+=`<a class="buck${b.top?" top":""}" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age"${g.tbd?` style="color:${og.c}"`:""}>${g.tbd?esc(og.tag)+" · ":""}${esc(b.age)}</span></div>
         <div class="sct">📷 ${b.hist.length} cam sighting${b.hist.length===1?"":"s"}${seenOf(b.id).length?` · 👁 ${seenOf(b.id).length} live`:""}${b.hist[0]&&b.hist[0].date?` · last ${esc(b.hist[0].date.slice(0,5).replace(/^0/,""))}`:""}</div>
         <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}<span class="go">Details ›</span></div></a>`;}
     h+=`</section>`;}
