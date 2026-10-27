@@ -44,6 +44,7 @@ button{font:inherit;color:inherit}
 .buck{display:block;margin:0 0 18px;color:inherit;text-decoration:none}
 .buck .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
 .buck .nm{font:700 1.7rem var(--display);letter-spacing:.05em;line-height:1;min-width:0;overflow-wrap:anywhere}
+.buck .sct{margin:-2px 0 6px;font:600 .82rem var(--mono);color:var(--muted)}
 .buck .age{font:500 1rem var(--mono);color:var(--c);flex:none}
 .ph{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:#000}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
@@ -178,7 +179,9 @@ details[open] summary::after{transform:rotate(180deg)}
 .hvrows{padding:0}
 .hvrows small{color:var(--muted);font-size:.78rem}
 .hvnote{margin:10px 0 0;font-size:.92rem;color:var(--muted)}
-@media (max-width:460px){.topbtns .galbtn{padding:10px 6px;gap:4px;font-size:.92rem}}
+@media (max-width:460px){.topbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.topbtns .galbtn{padding:10px 4px;gap:4px;font-size:.84rem;letter-spacing:.03em;justify-content:center;min-width:0;white-space:nowrap}.topbtns .galbtn svg{width:15px;height:15px;flex:none}.hcount{padding:0 5px;font-size:.72rem}}
+@media (max-width:460px){.topbtns .galbtn svg{display:none}}
+@media (max-width:375px){.topbtns .galbtn{font-size:.76rem;letter-spacing:0;padding:10px 2px}}
 .ssum{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .ssum h3{margin:0 0 8px;font:700 1.15rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ssum ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -320,6 +323,7 @@ function home(){
     h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.sub} · ${list.length}</small></h2>`;
     for(const b of list){const s=seenOf(b.id)[0];
       h+=`<a class="buck${b.top?" top":""}" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age">${esc(b.age)}</span></div>
+        <div class="sct">📷 ${b.hist.length} cam sighting${b.hist.length===1?"":"s"}${seenOf(b.id).length?` · 👁 ${seenOf(b.id).length} live`:""}${b.hist[0]&&b.hist[0].date?` · last ${esc(b.hist[0].date.slice(0,5).replace(/^0/,""))}`:""}</div>
         <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}<span class="go">Details ›</span></div></a>`;}
     h+=`</section>`;}
   if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":x.field==="seen"?"Sighting of "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span>${x.field==="seen"?"":`<button data-undo="${i}">Undo</button>`}</li>`).join("")+`</ul></section>`;}
