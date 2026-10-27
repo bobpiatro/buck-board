@@ -97,8 +97,8 @@ window.NORMAL_HIGH = {
 // ---------- Harvested tab ----------
 // Newest first. pics are files in img/. Leave a field "" if unknown.
 window.HARVEST = [
- {id:"HV1",buck:"Not named yet",date:"10/26/26",time:"",hunter:"Duce",weapon:"Crossbow",stand:"Duce Bow blind",
-  temp:"About 50°F",tempNote:"Property cams read 50°F at 5:31 and 5:58 PM",wind:"",
+ {id:"HV1",buck:"Not named yet",date:"10/26/26",time:"6:32 PM",hunter:"Duce",weapon:"Crossbow",stand:"Duce Bow blind (camp)",
+  temp:"47°F",tempNote:"NOAA Alpena station 6–7 PM; property cams read 50°F at 5:30–6 PM",wind:"N–NNW, 4–7 mph, dying off toward dark",
   pts:"7–8 (split tip on one beam)",age:"",
   note:"New buck. Never on any of our cameras. Easy tell: the split, slightly palmated tip at the end of one beam. Long sweeping beams, one side a beam with a short brow and one long tine.",
   pics:["HV1"]}
