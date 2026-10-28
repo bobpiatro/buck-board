@@ -11,9 +11,9 @@ window.STANDS = [
 // hist: camera sightings, newest first. pics are files in img/. cover: pic to use as the card photo (else newest).
 // In rep/note text, @X means "the current name of buck X".
 window.BUCKS = [
- {id:"K",name:"WIDE LOAD",cover:"K-5",top:true,g:"shoot",age:"4.5+",pts:"8–10",dn:"Day + night",rep:"No match",
+ {id:"K",name:"WIDE LOAD",cover:"K-11",top:true,g:"shoot",age:"4.5+",pts:"8–10",dn:"Day + night",rep:"No match",
   note:"10/21 daylight: wide rack well outside the ears, long beams sweeping forward with tips curving in, tall G2s (Bob matched the G2 shape and length to the 10/14 night shot). Heaviest body in the set: deep chest, thick neck, belly starting to drop. Good mass, head down at a scrape or feeding. Very close to the camera, which exaggerates size.",
-  hist:[{added:"10/27/26",date:"10/27/26",time:"7:51 AM",temp:"47°F",cam:"Big Joe Webb (Moultrie), video. Working a licking branch / scrape at back edge of plot",pics:["K-6","K-8","K-9","K-7"]},{added:"10/21/26",date:"10/21/26",time:"6:27 PM",temp:"60°F",cam:"Barnyard (Spypoint)",pics:["K-5","K-cmp","K-4"]},{added:"10/17/26",date:"10/14/26",time:"5:17 AM",temp:"46°F",cam:"Spypoint Flex-M",pics:["K","K-2"]}]},
+  hist:[{added:"10/28/26",date:"10/28/26",time:"6:43 PM",temp:"64°F",cam:"Big Joe Webb (Moultrie), video. Feeding at the front of the plot with 3–4 does behind him. Clean front-on look.",pics:["K-11","K-10","K-12","K-13"]},{added:"10/27/26",date:"10/27/26",time:"7:51 AM",temp:"47°F",cam:"Big Joe Webb (Moultrie), video. Working a licking branch / scrape at back edge of plot",pics:["K-6","K-8","K-9","K-7"]},{added:"10/21/26",date:"10/21/26",time:"6:27 PM",temp:"60°F",cam:"Barnyard (Spypoint)",pics:["K-5","K-cmp","K-4"]},{added:"10/17/26",date:"10/14/26",time:"5:17 AM",temp:"46°F",cam:"Spypoint Flex-M",pics:["K","K-2"]}]},
  {id:"I",name:"BIG RED",g:"shoot",age:"4.5+",pts:"8",dn:"Day",rep:"Possible @D/@G",
   note:"Evening, walking, doe in background. Belly sag and short-looking legs for the body. Long beams with good mass and spread.",
   hist:[{added:"10/17/26",date:"10/16/26",time:"5:47 PM",temp:"45°F",cam:"Spypoint Flex-M + Mikey Sunshine (Moultrie)",pics:["I","I-2","I-3"]}]},
