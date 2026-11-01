@@ -285,7 +285,8 @@ const GROUPS=[
   {key:"unk",title:"Unknown",sub:"need a better photo",tag:"Unknown",c:"var(--unk)"}
 ];
 const grpOf=b=>GROUPS.find(g=>g.key===b.g)||GROUPS[3];
-const byId=id=>BUCKS.find(b=>b.id===id);
+const MERGED=window.MERGED||{};const mid=id=>MERGED[id]||id;
+const byId=id=>BUCKS.find(b=>b.id===mid(id));
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -297,7 +298,7 @@ const ptsOf=id=>LIVE.pts[id]||byId(id).pts;
 const fill=t=>esc(t).replace(/@([A-Z])/g,(m,id)=>esc(nameOf(id)));
 // cover: optional pic to lead with (card photo) instead of the newest sighting's.
 const pics=b=>{const l=b.hist.flatMap(h=>h.pics||[]);return b.cover&&l.includes(b.cover)?[b.cover,...l.filter(p=>p!==b.cover)]:l;};
-const seenOf=id=>(LIVE.seen[id]||[]).slice().sort((a,b)=>b.when<a.when?-1:1);
+const seenOf=id=>[id,...Object.keys(MERGED).filter(k=>MERGED[k]===id)].flatMap(k=>LIVE.seen[k]||[]).slice().sort((a,b)=>b.when<a.when?-1:1);
 
 // dates
 const pad=n=>String(n).padStart(2,"0");
