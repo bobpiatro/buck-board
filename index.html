@@ -183,6 +183,26 @@ details[open] summary::after{transform:rotate(180deg)}
 @media (max-width:460px){.topbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.topbtns .galbtn{padding:10px 4px;gap:4px;font-size:.84rem;letter-spacing:.03em;justify-content:center;min-width:0;white-space:nowrap}.topbtns .galbtn svg{width:15px;height:15px;flex:none}.hcount{padding:0 5px;font-size:.72rem}}
 @media (max-width:460px){.topbtns .galbtn svg{display:none}}
 @media (max-width:375px){.topbtns .galbtn{font-size:.76rem;letter-spacing:0;padding:10px 2px}}
+/* ---- SUM grid ---- */
+.sumf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 10px}
+.sumf label{display:flex;flex-direction:column;gap:3px;font:600 .7rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:0}
+.sumf select{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:8px 6px;font:600 .9rem var(--body);min-width:0;width:100%}
+.sumf select.on{border-color:var(--accent);color:var(--accent)}
+.sumstat{font:600 .85rem var(--mono);color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sumstat button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:3px 8px;font:600 .8rem var(--body);cursor:pointer}
+.sumwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;-webkit-overflow-scrolling:touch}
+.sumt{border-collapse:collapse;width:100%;font-size:.8rem;white-space:nowrap}
+.sumt th{position:sticky;top:0;background:var(--raise);text-align:left;font:700 .7rem var(--body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:8px}
+.sumt td{padding:9px 6px;border-top:1px solid var(--line)}.sumt td:first-child{max-width:92px;overflow:hidden;text-overflow:ellipsis}.sumt td:nth-child(3),.sumt th:nth-child(3),.sumt th:nth-child(4){white-space:normal;min-width:58px;max-width:66px;line-height:1.2}.sumt td:first-child{max-width:84px}
+.sumt tr[data-b]{cursor:pointer}
+.sumt td:first-child,.sumt th:first-child{position:sticky;left:0;background:var(--surface);font-weight:700;z-index:1}
+.sumt th:first-child{background:var(--raise)}
+.sumt .dn{font:700 .72rem var(--body);padding:1px 5px;border-radius:4px;background:var(--raise)}
+.sumt .dn.d{background:#5a4a1a;color:#f3d77a}.sumt .dn.n{background:#22304a;color:#9cb8ea}
+.sumt .lv{color:var(--accent);font-weight:700}
+.sumt .mut{color:var(--muted)}
+.sumnote{font-size:.8rem;color:var(--muted);margin-top:8px}
+@media (max-width:460px){.topbtns{grid-template-columns:repeat(2,minmax(0,1fr))!important}.sumf{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .ssum{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .ssum h3{margin:0 0 8px;font:700 1.15rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ssum ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -244,6 +264,7 @@ details[open] summary::after{transform:rotate(180deg)}
 <main class="view" id="v-seen" hidden></main>
 <main class="view" id="v-sits" hidden></main>
 <main class="view" id="v-harv" hidden></main>
+<main class="view" id="v-sum" hidden></main>
 
 <div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-title">
   <form id="dlg-form" novalidate>
@@ -319,6 +340,7 @@ const $=id=>document.getElementById(id);
 function home(){
   let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
     <div class="topbtns"><a class="galbtn hot" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>STANDS</a>
+    <a class="galbtn" href="#sum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h18M3 10h18M3 16h18M3 22h18M9 4v18"/></svg>SIGHTING SUM</a>
     <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a>
     <a class="galbtn" href="#h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3v6a6 6 0 0 0 12 0V3M12 15v6M8 21h8"/></svg>HARVESTED${(window.HARVEST||[]).length?` <span class="hcount">${window.HARVEST.length}</span>`:""}</a></div></div>`;
   const isTBD=b=>/^NAME TBD/i.test(nameOf(b.id));
@@ -553,6 +575,61 @@ function harvested(){const L=window.HARVEST||[];
       <div class="dbody hvrows">${rows}</div>${x.note?`<p class="hvnote">${esc(x.note)}</p>`:""}</section>`;});
   $("v-harv").innerHTML=h;}
 
+// ---------- SUM: every sighting in one filterable grid ----------
+// Wind for cam sightings comes from Open-Meteo's hourly archive at the property, fetched on the
+// phone and saved in localStorage (key bb-hwind: {"YYYY-MM-DDTHH":[mph,deg]}). Live sightings keep
+// the direction the hunter tapped; speed comes from the same lookup.
+const SUMF={b:"",t:"",dn:"",tm:"",c:"",w:""};
+const HW={key:"bb-hwind",busy:false,tried:false};
+const hwGet=()=>{try{return JSON.parse(ls.get(HW.key)||"{}")}catch(e){return {}}};
+const deg8=d=>["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8];
+const camName=c=>{c=String(c||"").split(/[,(→]/)[0].replace(/^Spypoint\s+/i,"").trim();return c||"—";};
+function parseHist(h){ // "10/16/26" + "6:41–6:48 PM" -> {ds:"2026-10-16",hm:"18:41"}
+  const d=/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/.exec(h.date||"");if(!d)return null;
+  const y=d[3].length===2?"20"+d[3]:d[3],ds=`${y}-${pad(+d[1])}-${pad(+d[2])}`;
+  const t=/(\d{1,2}):(\d{2})/.exec(h.time||""),ap=/(AM|PM)/i.exec(h.time||"");if(!t)return {ds,hm:null};
+  let hr=+t[1]%12;if(ap&&ap[1].toUpperCase()==="PM")hr+=12;return {ds,hm:`${pad(hr)}:${t[2]}`};}
+function sumRows(){const out=[],hw=hwGet();
+  const look=(ds,hm)=>{if(!hm)return null;let [H,M]=hm.split(":").map(Number);if(M>=30)H++;let d=ds;
+    if(H===24){const x=new Date(ds+"T12:00");x.setDate(x.getDate()+1);d=`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;H=0;}
+    return hw[`${d}T${pad(H)}`]||null;};
+  const dnOf=(ds,hm)=>{if(!hm)return "";const s=sun(ds),t=ds+"T"+hm,sh=(x,m)=>{const [H,M]=x.slice(11).split(":").map(Number),v=H*60+M+m;return x.slice(0,11)+pad(Math.floor(v/60))+":"+pad(v%60);};return t>=sh(s.rise,-30)&&t<=sh(s.set,30)?"Day":"Night";};
+  const tmOf=(ds,hm,dn)=>{if(!hm)return "";if(dn==="Night")return "Night";return hm<"10:00"?"AM":hm<"15:00"?"Midday":"PM";};
+  BUCKS.forEach(b=>{(b.hist||[]).forEach(h=>{const p=parseHist(h);if(!p){out.push({id:b.id,ds:"",hm:null,dn:"",tm:"",cam:"",type:"Cam",temp:"",wd:"",ws:null,none:true});return;}const w=look(p.ds,p.hm),dn=dnOf(p.ds,p.hm);
+      out.push({id:b.id,ds:p.ds,hm:p.hm,dn,tm:tmOf(p.ds,p.hm,dn),cam:camName(h.cam),type:"Cam",temp:h.temp||"",
+        wd:w?deg8(w[1]):"",ws:w?Math.round(w[0]):null});});
+    seenOf(b.id).forEach(x=>{const [ds,hm]=String(x.when||"").split("T");if(!ds)return;const w=look(ds,hm),dn=dnOf(ds,hm);
+      out.push({id:b.id,ds,hm:hm||null,dn,tm:tmOf(ds,hm,dn),cam:x.stand||"—",type:"Live",temp:"",
+        wd:(x.wind&&x.wind!=="Calm")?x.wind:(w?deg8(w[1]):""),ws:w?Math.round(w[0]):null,by:x.by});});});
+  return out.sort((a,b)=>(b.ds+(b.hm||""))<(a.ds+(a.hm||""))?-1:1);}
+async function hwLoad(rows){ // fetch hourly wind for any sighting dates not already saved
+  if(HW.busy||HW.tried)return;const hw=hwGet(),need=rows.filter(r=>r.hm&&!hw[`${r.ds}T${r.hm.slice(0,2)}`]);if(!need.length)return;
+  HW.busy=true;const ds=need.map(r=>r.ds).sort(),end=todayKey();
+  const u=`https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=${WX.lat}&longitude=${WX.lon}&start_date=${ds[0]}&end_date=${end}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=${encodeURIComponent(WX.tz)}`;
+  try{const j=await (await fetch(u)).json(),H=j.hourly||{};const o=hwGet();
+    (H.time||[]).forEach((t,i)=>{const s=H.wind_speed_10m[i],d=H.wind_direction_10m[i];if(s!=null&&d!=null)o[t.slice(0,13)]=[s,d];});
+    ls.set(HW.key,JSON.stringify(o));}catch(e){}
+  HW.busy=false;HW.tried=true;if(VIEW==="sum")summary();}
+function summary(){const all=sumRows();hwLoad(all);
+  const uniq=(k)=>[...new Set(all.map(r=>r[k]).filter(Boolean))].sort();
+  const opt=(k,lab,vals,fmt)=>`<label>${lab}<select data-sf="${k}" class="${SUMF[k]?"on":""}"><option value="">All</option>${vals.map(v=>`<option value="${esc(v)}"${SUMF[k]===v?" selected":""}>${esc(fmt?fmt(v):v)}</option>`).join("")}</select></label>`;
+  const ids=[...new Set(all.map(r=>r.id))].sort((a,b)=>nameOf(a)<nameOf(b)?-1:1);
+  const rows=all.filter(r=>(!SUMF.b||r.id===SUMF.b)&&(!SUMF.t||r.type===SUMF.t)&&(!SUMF.dn||r.dn===SUMF.dn)&&(!SUMF.tm||r.tm===SUMF.tm)&&(!SUMF.c||r.cam===SUMF.c)&&(!SUMF.w||r.wd===SUMF.w));
+  const nb=new Set(rows.map(r=>r.id)).size,nd=rows.filter(r=>r.dn==="Day").length,nn=rows.filter(r=>r.dn==="Night").length,any=Object.values(SUMF).some(Boolean);
+  const md=ds=>`${+ds.slice(5,7)}/${+ds.slice(8,10)}`;
+  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Sighting Sum</h1><span class="count">${all.length} sightings</span></div>
+  <div class="sumf">${opt("b","Buck",ids,nameOf)}${opt("t","Sighting",["Cam","Live"])}${opt("dn","Day / Night",["Day","Night"])}
+  ${opt("tm","Time",["AM","Midday","PM","Night"])}${opt("c","Camera / Stand",uniq("cam"))}${opt("w","Wind",["N","NE","E","SE","S","SW","W","NW"].filter(d=>all.some(r=>r.wd===d)))}</div>
+  <div class="sumstat"><span>${rows.length} sighting${rows.length===1?"":"s"} · ${nb} buck${nb===1?"":"s"} · ${nd} day / ${nn} night</span>${any?`<button data-sumclear>Clear filters</button>`:""}</div>`;
+  h+=rows.length?`<div class="sumwrap"><table class="sumt"><thead><tr><th>Buck</th><th>When</th><th>Cam / Stand</th><th>Temp · Wind</th></tr></thead><tbody>${rows.map(r=>
+    `<tr data-b="${esc(r.id)}"><td>${esc(nameOf(r.id))}${r.type==="Live"?` <span class="lv" title="Live sighting">👁</span>`:""}</td>${r.none?`<td colspan="3" class="mut">No info available</td></tr>`:`<td><span class="dn ${r.dn==="Day"?"d":"n"}">${r.dn==="Day"?"☀":"☾"}</span> ${md(r.ds)} ${r.hm?fmtTime(r.hm).replace(/ ([AP])M/,(m,x)=>x.toLowerCase()):""}</td><td>${esc(r.cam)}</td><td><span class="mut">${esc(r.temp.replace("°F","°"))||"—"}</span> ${r.wd?`<b>${esc(r.wd)}</b>`+(r.ws!=null?` ${r.ws}`:""):(HW.busy?"…":"—")}</td></tr>`}`).join("")}</tbody></table></div>`
+    :`<p class="empty">No sightings match those filters.</p>`;
+  h+=`<p class="sumnote">Day = legal shooting light (30 min before sunrise to 30 min after sunset). Time: AM is first light–10, Midday 10–3, PM 3–last light. Wind on cam sightings is the hourly wind at the property from Open-Meteo (nearest hour); live sightings show the wind the hunter logged. ☀ = day, ☾ = night, 👁 = live sighting. Wind is direction and mph. “No info available” = an early photo with no date or camera logged. Tap a row to open the buck.</p>`;
+  $("v-sum").innerHTML=h;}
+document.addEventListener("change",e=>{const f=e.target.closest("[data-sf]");if(!f)return;SUMF[f.dataset.sf]=f.value;summary();});
+document.addEventListener("click",e=>{if(e.target.closest("[data-sumclear]")){Object.keys(SUMF).forEach(k=>SUMF[k]="");summary();return;}
+  const r=e.target.closest(".sumt tr[data-b]");if(r)location.hash="b-"+r.dataset.b;});
+
 // ---------- router ----------
 let VIEW="home",VIEWID=null;
 // Each page entry remembers which page came before it, so the in-app "‹ Back" links step back
@@ -565,13 +642,13 @@ function markNav(){const st=history.state;
 function goBackTo(target){const st=history.state;target=target||"#";
   if(st&&st.i>0&&(st.prev||"#")===target)history.back();else location.replace(target);}
 function route(){markNav();const h=location.hash.slice(1);let v="home",id=null;
-  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h==="h")v="harv";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h==="h")v="harv";else if(h==="sum")v="sum";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
   if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
-  ["home","buck","gallery","seen","sits","harv"].forEach(k=>$("v-"+k).hidden=k!==v);
+  ["home","buck","gallery","seen","sits","harv","sum"].forEach(k=>$("v-"+k).hidden=k!==v);
   draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
 }
-function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();else if(VIEW==="harv")harvested();}
+function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();else if(VIEW==="harv")harvested();else if(VIEW==="sum")summary();}
 addEventListener("hashchange",route);
 addEventListener("scroll",()=>{if(VIEW==="home")try{sessionStorage.setItem("bb-y",String(scrollY))}catch(e){}},{passive:true});
 
