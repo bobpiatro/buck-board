@@ -340,7 +340,7 @@ const $=id=>document.getElementById(id);
 function home(){
   let h=`<div class="top"><img src="icons/logo.png" alt="Hubbard Lake Social Club" width="54" height="60"><h1>Buck Board 26</h1>
     <div class="topbtns"><a class="galbtn hot" href="#w"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>STANDS</a>
-    <a class="galbtn" href="#sum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h18M3 10h18M3 16h18M3 22h18M9 4v18"/></svg>SUM</a>
+    <a class="galbtn" href="#sum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h18M3 10h18M3 16h18M3 22h18M9 4v18"/></svg>SIGHTING SUM</a>
     <a class="galbtn" href="#g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GALLERY</a>
     <a class="galbtn" href="#h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3v6a6 6 0 0 0 12 0V3M12 15v6M8 21h8"/></svg>HARVESTED${(window.HARVEST||[]).length?` <span class="hcount">${window.HARVEST.length}</span>`:""}</a></div></div>`;
   const isTBD=b=>/^NAME TBD/i.test(nameOf(b.id));
@@ -595,7 +595,7 @@ function sumRows(){const out=[],hw=hwGet();
     return hw[`${d}T${pad(H)}`]||null;};
   const dnOf=(ds,hm)=>{if(!hm)return "";const s=sun(ds),t=ds+"T"+hm,sh=(x,m)=>{const [H,M]=x.slice(11).split(":").map(Number),v=H*60+M+m;return x.slice(0,11)+pad(Math.floor(v/60))+":"+pad(v%60);};return t>=sh(s.rise,-30)&&t<=sh(s.set,30)?"Day":"Night";};
   const tmOf=(ds,hm,dn)=>{if(!hm)return "";if(dn==="Night")return "Night";return hm<"10:00"?"AM":hm<"15:00"?"Midday":"PM";};
-  BUCKS.forEach(b=>{(b.hist||[]).forEach(h=>{const p=parseHist(h);if(!p)return;const w=look(p.ds,p.hm),dn=dnOf(p.ds,p.hm);
+  BUCKS.forEach(b=>{(b.hist||[]).forEach(h=>{const p=parseHist(h);if(!p){out.push({id:b.id,ds:"",hm:null,dn:"",tm:"",cam:"",type:"Cam",temp:"",wd:"",ws:null,none:true});return;}const w=look(p.ds,p.hm),dn=dnOf(p.ds,p.hm);
       out.push({id:b.id,ds:p.ds,hm:p.hm,dn,tm:tmOf(p.ds,p.hm,dn),cam:camName(h.cam),type:"Cam",temp:h.temp||"",
         wd:w?deg8(w[1]):"",ws:w?Math.round(w[0]):null});});
     seenOf(b.id).forEach(x=>{const [ds,hm]=String(x.when||"").split("T");if(!ds)return;const w=look(ds,hm),dn=dnOf(ds,hm);
@@ -617,14 +617,14 @@ function summary(){const all=sumRows();hwLoad(all);
   const rows=all.filter(r=>(!SUMF.b||r.id===SUMF.b)&&(!SUMF.t||r.type===SUMF.t)&&(!SUMF.dn||r.dn===SUMF.dn)&&(!SUMF.tm||r.tm===SUMF.tm)&&(!SUMF.c||r.cam===SUMF.c)&&(!SUMF.w||r.wd===SUMF.w));
   const nb=new Set(rows.map(r=>r.id)).size,nd=rows.filter(r=>r.dn==="Day").length,nn=rows.filter(r=>r.dn==="Night").length,any=Object.values(SUMF).some(Boolean);
   const md=ds=>`${+ds.slice(5,7)}/${+ds.slice(8,10)}`;
-  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Sum</h1><span class="count">${all.length} sightings</span></div>
+  let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Sighting Sum</h1><span class="count">${all.length} sightings</span></div>
   <div class="sumf">${opt("b","Buck",ids,nameOf)}${opt("t","Sighting",["Cam","Live"])}${opt("dn","Day / Night",["Day","Night"])}
   ${opt("tm","Time",["AM","Midday","PM","Night"])}${opt("c","Camera / Stand",uniq("cam"))}${opt("w","Wind",["N","NE","E","SE","S","SW","W","NW"].filter(d=>all.some(r=>r.wd===d)))}</div>
   <div class="sumstat"><span>${rows.length} sighting${rows.length===1?"":"s"} · ${nb} buck${nb===1?"":"s"} · ${nd} day / ${nn} night</span>${any?`<button data-sumclear>Clear filters</button>`:""}</div>`;
   h+=rows.length?`<div class="sumwrap"><table class="sumt"><thead><tr><th>Buck</th><th>When</th><th>Cam / Stand</th><th>Temp · Wind</th></tr></thead><tbody>${rows.map(r=>
-    `<tr data-b="${esc(r.id)}"><td>${esc(nameOf(r.id))}${r.type==="Live"?` <span class="lv" title="Live sighting">👁</span>`:""}</td><td><span class="dn ${r.dn==="Day"?"d":"n"}">${r.dn==="Day"?"☀":"☾"}</span> ${md(r.ds)} ${r.hm?fmtTime(r.hm).replace(/ ([AP])M/,(m,x)=>x.toLowerCase()):""}</td><td>${esc(r.cam)}</td><td><span class="mut">${esc(r.temp.replace("°F","°"))||"—"}</span> ${r.wd?`<b>${esc(r.wd)}</b>`+(r.ws!=null?` ${r.ws}`:""):(HW.busy?"…":"—")}</td></tr>`).join("")}</tbody></table></div>`
+    `<tr data-b="${esc(r.id)}"><td>${esc(nameOf(r.id))}${r.type==="Live"?` <span class="lv" title="Live sighting">👁</span>`:""}</td>${r.none?`<td colspan="3" class="mut">No info available</td></tr>`:`<td><span class="dn ${r.dn==="Day"?"d":"n"}">${r.dn==="Day"?"☀":"☾"}</span> ${md(r.ds)} ${r.hm?fmtTime(r.hm).replace(/ ([AP])M/,(m,x)=>x.toLowerCase()):""}</td><td>${esc(r.cam)}</td><td><span class="mut">${esc(r.temp.replace("°F","°"))||"—"}</span> ${r.wd?`<b>${esc(r.wd)}</b>`+(r.ws!=null?` ${r.ws}`:""):(HW.busy?"…":"—")}</td></tr>`}`).join("")}</tbody></table></div>`
     :`<p class="empty">No sightings match those filters.</p>`;
-  h+=`<p class="sumnote">Day = legal shooting light (30 min before sunrise to 30 min after sunset). Time: AM is first light–10, Midday 10–3, PM 3–last light. Wind on cam sightings is the hourly wind at the property from Open-Meteo (nearest hour); live sightings show the wind the hunter logged. ☀ = day, ☾ = night, 👁 = live sighting. Wind is direction and mph. Tap a row to open the buck.</p>`;
+  h+=`<p class="sumnote">Day = legal shooting light (30 min before sunrise to 30 min after sunset). Time: AM is first light–10, Midday 10–3, PM 3–last light. Wind on cam sightings is the hourly wind at the property from Open-Meteo (nearest hour); live sightings show the wind the hunter logged. ☀ = day, ☾ = night, 👁 = live sighting. Wind is direction and mph. “No info available” = an early photo with no date or camera logged. Tap a row to open the buck.</p>`;
   $("v-sum").innerHTML=h;}
 document.addEventListener("change",e=>{const f=e.target.closest("[data-sf]");if(!f)return;SUMF[f.dataset.sf]=f.value;summary();});
 document.addEventListener("click",e=>{if(e.target.closest("[data-sumclear]")){Object.keys(SUMF).forEach(k=>SUMF[k]="");summary();return;}
