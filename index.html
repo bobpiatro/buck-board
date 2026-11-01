@@ -188,6 +188,10 @@ details[open] summary::after{transform:rotate(180deg)}
 .sumf label{display:flex;flex-direction:column;gap:3px;font:600 .7rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:0}
 .sumf select{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:8px 6px;font:600 .9rem var(--body);min-width:0;width:100%}
 .sumf select.on{border-color:var(--accent);color:var(--accent)}
+.sumw{margin:0 0 10px}.sumw>span{display:block;font:600 .7rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}.sumw small{text-transform:none;letter-spacing:0;font-weight:500}
+.sumw>div{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px}
+.sumw button{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:9px 0;font:700 .85rem var(--body);cursor:pointer;min-width:0}
+.sumw button.on{background:var(--accent);border-color:var(--accent);color:var(--ink)}
 .sumstat{font:600 .85rem var(--mono);color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .sumstat button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:3px 8px;font:600 .8rem var(--body);cursor:pointer}
 .sumwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;-webkit-overflow-scrolling:touch}
@@ -579,7 +583,7 @@ function harvested(){const L=window.HARVEST||[];
 // Wind for cam sightings comes from Open-Meteo's hourly archive at the property, fetched on the
 // phone and saved in localStorage (key bb-hwind: {"YYYY-MM-DDTHH":[mph,deg]}). Live sightings keep
 // the direction the hunter tapped; speed comes from the same lookup.
-const SUMF={b:"",t:"",dn:"",tm:"",c:"",w:""};
+const SUMF={b:"",t:"",dn:"",tm:"",c:"",w:[]};
 const HW={key:"bb-hwind",busy:false,tried:false};
 const hwGet=()=>{try{return JSON.parse(ls.get(HW.key)||"{}")}catch(e){return {}}};
 const deg8=d=>["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8];
@@ -614,12 +618,12 @@ function summary(){const all=sumRows();hwLoad(all);
   const uniq=(k)=>[...new Set(all.map(r=>r[k]).filter(Boolean))].sort();
   const opt=(k,lab,vals,fmt)=>`<label>${lab}<select data-sf="${k}" class="${SUMF[k]?"on":""}"><option value="">All</option>${vals.map(v=>`<option value="${esc(v)}"${SUMF[k]===v?" selected":""}>${esc(fmt?fmt(v):v)}</option>`).join("")}</select></label>`;
   const ids=[...new Set(all.map(r=>r.id))].sort((a,b)=>nameOf(a)<nameOf(b)?-1:1);
-  const rows=all.filter(r=>(!SUMF.b||r.id===SUMF.b)&&(!SUMF.t||r.type===SUMF.t)&&(!SUMF.dn||r.dn===SUMF.dn)&&(!SUMF.tm||r.tm===SUMF.tm)&&(!SUMF.c||r.cam===SUMF.c)&&(!SUMF.w||r.wd===SUMF.w));
-  const nb=new Set(rows.map(r=>r.id)).size,nd=rows.filter(r=>r.dn==="Day").length,nn=rows.filter(r=>r.dn==="Night").length,any=Object.values(SUMF).some(Boolean);
+  const rows=all.filter(r=>(!SUMF.b||r.id===SUMF.b)&&(!SUMF.t||r.type===SUMF.t)&&(!SUMF.dn||r.dn===SUMF.dn)&&(!SUMF.tm||r.tm===SUMF.tm)&&(!SUMF.c||r.cam===SUMF.c)&&(!SUMF.w.length||SUMF.w.includes(r.wd)));
+  const nb=new Set(rows.map(r=>r.id)).size,nd=rows.filter(r=>r.dn==="Day").length,nn=rows.filter(r=>r.dn==="Night").length,any=Object.values(SUMF).some(v=>Array.isArray(v)?v.length:v);
   const md=ds=>`${+ds.slice(5,7)}/${+ds.slice(8,10)}`;
   let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Sighting Sum</h1><span class="count">${all.length} sightings</span></div>
   <div class="sumf">${opt("b","Buck",ids,nameOf)}${opt("t","Sighting",["Cam","Live"])}${opt("dn","Day / Night",["Day","Night"])}
-  ${opt("tm","Time",["AM","Midday","PM","Night"])}${opt("c","Camera / Stand",uniq("cam"))}${opt("w","Wind",["N","NE","E","SE","S","SW","W","NW"].filter(d=>all.some(r=>r.wd===d)))}</div>
+  ${opt("tm","Time",["AM","Midday","PM","Night"])}${opt("c","Camera / Stand",uniq("cam"))}</div><div class="sumw"><span>Wind <small>(tap one or more)</small></span><div>${["N","NE","E","SE","S","SW","W","NW"].map(d=>`<button data-sw="${d}" class="${SUMF.w.includes(d)?"on":""}">${d}</button>`).join("")}</div></div>
   <div class="sumstat"><span>${rows.length} sighting${rows.length===1?"":"s"} · ${nb} buck${nb===1?"":"s"} · ${nd} day / ${nn} night</span>${any?`<button data-sumclear>Clear filters</button>`:""}</div>`;
   h+=rows.length?`<div class="sumwrap"><table class="sumt"><thead><tr><th>Buck</th><th>When</th><th>Cam / Stand</th><th>Temp · Wind</th></tr></thead><tbody>${rows.map(r=>
     `<tr data-b="${esc(r.id)}"><td>${esc(nameOf(r.id))}${r.type==="Live"?` <span class="lv" title="Live sighting">👁</span>`:""}</td>${r.none?`<td colspan="3" class="mut">No info available</td></tr>`:`<td><span class="dn ${r.dn==="Day"?"d":"n"}">${r.dn==="Day"?"☀":"☾"}</span> ${md(r.ds)} ${r.hm?fmtTime(r.hm).replace(/ ([AP])M/,(m,x)=>x.toLowerCase()):""}</td><td>${esc(r.cam)}</td><td><span class="mut">${esc(r.temp.replace("°F","°"))||"—"}</span> ${r.wd?`<b>${esc(r.wd)}</b>`+(r.ws!=null?` ${r.ws}`:""):(HW.busy?"…":"—")}</td></tr>`}`).join("")}</tbody></table></div>`
@@ -627,7 +631,8 @@ function summary(){const all=sumRows();hwLoad(all);
   h+=`<p class="sumnote">Day = legal shooting light (30 min before sunrise to 30 min after sunset). Time: AM is first light–10, Midday 10–3, PM 3–last light. Wind on cam sightings is the hourly wind at the property from Open-Meteo (nearest hour); live sightings show the wind the hunter logged. ☀ = day, ☾ = night, 👁 = live sighting. Wind is direction and mph. “No info available” = an early photo with no date or camera logged. Tap a row to open the buck.</p>`;
   $("v-sum").innerHTML=h;}
 document.addEventListener("change",e=>{const f=e.target.closest("[data-sf]");if(!f)return;SUMF[f.dataset.sf]=f.value;summary();});
-document.addEventListener("click",e=>{if(e.target.closest("[data-sumclear]")){Object.keys(SUMF).forEach(k=>SUMF[k]="");summary();return;}
+document.addEventListener("click",e=>{if(e.target.closest("[data-sumclear]")){Object.keys(SUMF).forEach(k=>SUMF[k]=k==="w"?[]:"");summary();return;}
+  const sw=e.target.closest("[data-sw]");if(sw){const d=sw.dataset.sw,i=SUMF.w.indexOf(d);if(i<0)SUMF.w.push(d);else SUMF.w.splice(i,1);summary();return;}
   const r=e.target.closest(".sumt tr[data-b]");if(r)location.hash="b-"+r.dataset.b;});
 
 // ---------- router ----------
