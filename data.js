@@ -22,7 +22,7 @@ window.BUCKS = [
   hist:[{added:"10/17/26",date:"10/16/26",time:"5:47 PM",temp:"45°F",cam:"Spypoint Flex-M + Mikey Sunshine (Moultrie)",pics:["I","I-2","I-3"]}]},
  {id:"G",name:"TALL BOY",cover:"G",g:"shoot",age:"3.5",pts:"8",dn:"Day + night",rep:"Possible @J",
   note:"Merged with Night Shift 11/01 per Bob: same rack front-on; day sightings at Big Joe Webb, night sightings at Flex-M and School House. Runs with a leaner 8 on Big Joe Webb: 10/20 video shows the two grooming and sparring at 6:18–6:20. Low-res, facing camera. Tall 8 with good G2s. If @G and @J are the same deer, @G is likely closer to 3.",
-  hist:[{added:"10/27/26",date:"10/27/26",time:"1:32 AM",temp:"39°F",cam:"Spypoint Flex-M",pics:["D-7", "D-8"]},
+  hist:[{added:"11/03/26",date:"11/03/26",time:"11:36 PM",temp:"68°F",cam:"Big Joe Webb (Moultrie). Tall 8, long G2s, heavy body and hanging belly; matched to Tall Boy 10/19 night side view (Bob call).",pics:["G-10","G-11"]},{added:"10/27/26",date:"10/27/26",time:"1:32 AM",temp:"39°F",cam:"Spypoint Flex-M",pics:["D-7", "D-8"]},
         {added:"10/26/26",date:"10/26/26",time:"5:58 PM",temp:"50°F",cam:"Big Joe Webb (Moultrie)",pics:["G-7", "G-8", "G-9", "G-6"]},
         {added:"10/20/26",date:"10/20/26",time:"6:14–6:20 PM",temp:"56°F",cam:"Big Joe Webb (Moultrie)",pics:["G-3", "G-5", "G-4"]},
         {added:"10/19/26",date:"10/19/26",time:"7:54 PM",temp:"46°F",cam:"Spypoint Flex-M",pics:["D-5", "D-6"]},
