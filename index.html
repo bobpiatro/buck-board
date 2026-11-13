@@ -52,6 +52,10 @@ button{font:inherit;color:inherit}
 .go{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.65);color:#fff;font:600 .8rem var(--body);padding:4px 10px;border-radius:99px}
 /* top target: gold star tag on card photo + buck page */
 .ttb{position:absolute;right:8px;top:8px;background:#f2cd3a;color:#140c05;font:700 .85rem var(--display);letter-spacing:.08em;padding:3px 10px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.buck.hvd .ph{position:relative;overflow:hidden}
+.buck.hvd .ph img{filter:grayscale(1) brightness(.55)}
+.buck.hvd .nm,.buck.hvd .age,.buck.hvd .sct{opacity:.55}
+.buck .hvx{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-28deg);font:800 2.4rem var(--display);letter-spacing:.12em;color:#e53935;border:5px solid #e53935;padding:4px 18px;border-radius:6px;background:rgba(0,0,0,.25);white-space:nowrap;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,.6)}
 .buck.top .ph{outline:3px solid #f2cd3a;outline-offset:-1px}
 .tt{display:inline-block;margin:8px 0 0 6px;background:#f2cd3a;color:#140c05;font:700 .85rem var(--display);letter-spacing:.08em;padding:2px 10px;border-radius:4px}
 .badge{position:absolute;left:8px;top:8px;background:var(--accent);color:var(--ink);font:700 .82rem var(--body);padding:3px 10px;border-radius:99px;max-width:calc(100% - 16px)}
@@ -353,9 +357,10 @@ function home(){
   for(const {g,list} of SECS){if(!list.length)continue;
     h+=`<section class="grp" style="--c:${g.c}"><h2>${g.title} <small>${g.tbd?list.length:g.sub+" · "+list.length}</small></h2>${g.tbd?`<p class="tbdsub">${g.sub}</p>`:""}`;
     for(const b of list){const s=seenOf(b.id)[0];const og=grpOf(b);
-      h+=`<a class="buck${b.top?" top":""}" href="#b-${b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age"${g.tbd?` style="color:${og.c}"`:""}>${g.tbd?esc(og.tag)+" · ":""}${esc(b.age)}</span></div>
+      const hv=(window.HARVEST||[]).find(x=>x.bid===b.id);
+      h+=`<a class="buck${b.top?" top":""}${hv?" hvd":""}" href="${hv?"#h-"+hv.id:"#b-"+b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age"${g.tbd?` style="color:${og.c}"`:""}>${g.tbd?esc(og.tag)+" · ":""}${esc(b.age)}</span></div>
         <div class="sct">📷 ${b.hist.length} cam sighting${b.hist.length===1?"":"s"}${seenOf(b.id).length?` · 👁 ${seenOf(b.id).length} live`:""}${b.hist[0]&&b.hist[0].date?` · last ${esc(b.hist[0].date.slice(0,5).replace(/^0/,""))}`:""}</div>
-        <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}<span class="go">Details ›</span></div></a>`;}
+        <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}${hv?`<span class="hvx">HARVESTED</span>`:""}<span class="go">${hv?"Harvest record ›":"Details ›"}</span></div></a>`;}
     h+=`</section>`;}
   if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":x.field==="seen"?"Sighting of "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span>${x.field==="seen"?"":`<button data-undo="${i}">Undo</button>`}</li>`).join("")+`</ul></section>`;}
   h+=`<p class="foot">Ages are field estimates. Shooter line is 3.5+. Names, points and live sightings can be changed by anyone with the camp code.</p>`;
@@ -573,7 +578,7 @@ function harvested(){const L=window.HARVEST||[];
   L.forEach((x,i)=>{const rows=[["Date",[x.date,x.time].filter(Boolean).join(" · ")],["Hunter",x.hunter],["Weapon",x.weapon],["Stand",x.stand],
       ["Temp",x.temp?x.temp+(x.tempNote?` <small>(${esc(x.tempNote)})</small>`:""):""],["Wind",x.wind],["Points",x.pts],["Age",x.age]]
       .filter(r=>r[1]).map(r=>`<div class="row"><span>${r[0]}</span><span>${r[0]==="Temp"?r[1].replace(/^([^<]*)/,m=>esc(m)):esc(r[1])}</span></div>`).join("");
-    h+=`<section class="hv"><div class="hvhd"><span class="hvtag">TAGGED</span><span class="hvwho">${esc(x.hunter||"")}${x.date?` · ${esc(x.date.slice(0,5).replace(/^0/,""))}`:""}</span></div>
+    h+=`<section class="hv" id="hv-${esc(x.id||"")}"><div class="hvhd"><span class="hvtag">TAGGED</span><span class="hvwho">${esc(x.hunter||"")}${x.date?` · ${esc(x.date.slice(0,5).replace(/^0/,""))}`:""}</span></div>
       <button class="hero" data-hv="${i}" aria-label="Open photo"><img src="img/${x.pics[0]}.jpg" alt="${esc(x.buck||"Harvested buck")}"></button>
       <h2 class="hvname">${esc(x.buck||"Not named")}</h2>
       <div class="dbody hvrows">${rows}</div>${x.note?`<p class="hvnote">${esc(x.note)}</p>`:""}</section>`;});
@@ -647,11 +652,12 @@ function markNav(){const st=history.state;
 function goBackTo(target){const st=history.state;target=target||"#";
   if(st&&st.i>0&&(st.prev||"#")===target)history.back();else location.replace(target);}
 function route(){markNav();const h=location.hash.slice(1);let v="home",id=null;
-  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h==="h")v="harv";else if(h==="sum")v="sum";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
+  if(h==="g")v="gallery";else if(h==="w")v="sits";else if(h==="h"||h.startsWith("h-")){v="harv";id=h.startsWith("h-")?h.slice(2):null;}else if(h==="sum")v="sum";else if(h.startsWith("b-")){v="buck";id=h.slice(2);}else if(h.startsWith("s-")){v="seen";id=h.slice(2);}
   if(typeof hideViewer==="function"&&!$("vw").hidden)hideViewer();if(!$("dlg").hidden)$("dlg").hidden=true;document.documentElement.classList.remove("locked");
   const same=v===VIEW&&id===VIEWID;VIEW=v;VIEWID=id;
   ["home","buck","gallery","seen","sits","harv","sum"].forEach(k=>$("v-"+k).hidden=k!==v);
   draw();if(!same)scrollTo(0,v==="home"?Number(sessionStorage.getItem("bb-y")||0):0);
+  if(v==="harv"&&id){const el=$("hv-"+id);if(el)el.scrollIntoView({block:"start"});}
 }
 function draw(){if(VIEW==="home")home();else if(VIEW==="buck")buck(VIEWID);else if(VIEW==="gallery")gallery();else if(VIEW==="seen")seenForm(VIEWID);else if(VIEW==="sits")sits();else if(VIEW==="harv")harvested();else if(VIEW==="sum")summary();}
 addEventListener("hashchange",route);

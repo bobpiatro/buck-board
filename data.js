@@ -106,7 +106,8 @@ window.NORMAL_HIGH = {
 
 // ---------- Harvested tab ----------
 // Newest first. pics are files in img/. Leave a field "" if unknown.
-window.HARVEST = [
+window.HARVEST = [{id:"HV2",bid:"Q",buck:"BEAMER",date:"11/13/26",time:"7:30 AM",hunter:"Tambo",weapon:"Crossbow (Ravin R10)",stand:"LRH",temp:"36°F",tempNote:"sit forecast; Alpena normal 45°F",wind:"N ~11 mph forecast; WNW ~1 mph at the barn station at 7:26 AM",pts:"8",age:"2.5",note:"Cold-front morning, peak rut. Came in by buggy from the south, quiet 60-yard walk to the blind, shot at first light.",pics:["HV2","HV2-2"]},
+
  {id:"HV1",buck:"DUCE DOWN",date:"10/26/26",time:"6:32 PM",hunter:"Duce",weapon:"Crossbow",stand:"DUCE BOW BLIND (camp)",
   temp:"47°F",tempNote:"NOAA Alpena station 6–7 PM; property cams read 50°F at 5:30–6 PM",wind:"N–NNW, 4–7 mph, dying off toward dark",
   pts:"7–8 (split tip on one beam)",age:"",
