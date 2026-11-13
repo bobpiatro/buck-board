@@ -183,6 +183,7 @@ details[open] summary::after{transform:rotate(180deg)}
 .hvname{margin:10px 0 6px;font:700 1.7rem var(--display);letter-spacing:.05em}
 .hvrows{padding:0}
 .hvrows small{color:var(--muted);font-size:.78rem}
+.hvcamh{margin:16px 0 8px;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.hvcamh small{text-transform:none;letter-spacing:0;font-weight:500}
 .hvnote{margin:10px 0 0;font-size:.92rem;color:var(--muted)}
 @media (max-width:460px){.topbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.topbtns .galbtn{padding:10px 4px;gap:4px;font-size:.84rem;letter-spacing:.03em;justify-content:center;min-width:0;white-space:nowrap}.topbtns .galbtn svg{width:15px;height:15px;flex:none}.hcount{padding:0 5px;font-size:.72rem}}
 @media (max-width:460px){.topbtns .galbtn svg{display:none}}
@@ -360,7 +361,7 @@ function home(){
       const hv=(window.HARVEST||[]).find(x=>x.bid===b.id);
       h+=`<a class="buck${b.top?" top":""}${hv?" hvd":""}" href="${hv?"#h-"+hv.id:"#b-"+b.id}"><div class="hd"><span class="nm">${esc(nameOf(b.id))}</span><span class="age"${g.tbd?` style="color:${og.c}"`:""}>${g.tbd?esc(og.tag)+" · ":""}${esc(b.age)}</span></div>
         <div class="sct">📷 ${b.hist.length} cam sighting${b.hist.length===1?"":"s"}${seenOf(b.id).length?` · 👁 ${seenOf(b.id).length} live`:""}${b.hist[0]&&b.hist[0].date?` · last ${esc(b.hist[0].date.slice(0,5).replace(/^0/,""))}`:""}</div>
-        <div class="ph"><img src="img/${pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}${hv?`<span class="hvx">HARVESTED</span>`:""}<span class="go">${hv?"Harvest record ›":"Details ›"}</span></div></a>`;}
+        <div class="ph"><img src="img/${hv?hv.pics[0]:pics(b)[0]}.jpg" alt="${esc(nameOf(b.id))}" loading="lazy">${s?`<span class="badge">👁 Seen live ${esc(fmtWhen(s.when))}</span>`:""}${b.top?`<span class="ttb">★ TOP TARGET</span>`:""}${hv?`<span class="hvx">HARVESTED</span>`:""}<span class="go">${hv?"Harvest record ›":"Details ›"}</span></div></a>`;}
     h+=`</section>`;}
   if(LIVE.log.length){h+=`<section class="hist"><h2>Change history</h2><ul>`+LIVE.log.map((x,i)=>`<li><span>${x.field==="pts"?"Points on "+esc(nameOf(x.id))+": ":x.field==="seen"?"Sighting of "+esc(nameOf(x.id))+": ":""}<b>${esc(x.from)}</b> → <b>${esc(x.to)}</b> · ${esc(x.by||"someone")}${x.day?" · "+esc(x.day):""}</span>${x.field==="seen"?"":`<button data-undo="${i}">Undo</button>`}</li>`).join("")+`</ul></section>`;}
   h+=`<p class="foot">Ages are field estimates. Shooter line is 3.5+. Names, points and live sightings can be changed by anyone with the camp code.</p>`;
@@ -385,7 +386,7 @@ function buck(id){const b=byId(id);if(!b){location.hash="";return;}
   <details><summary>Cam history <span class="peek">${b.hist.length} sighting${b.hist.length>1?"s":""}</span></summary><div class="dbody">${b.hist.map(camRows).join('<div style="height:6px"></div>')}</div></details>`;
 }
 function gallery(){
-  const all=[];BUCKS.forEach(b=>b.hist.forEach(h=>(h.pics||[]).forEach(p=>all.push({id:b.id,p,added:h.added}))));
+  const all=[];const HB=new Set((window.HARVEST||[]).map(x=>x.bid).filter(Boolean));BUCKS.filter(b=>!HB.has(b.id)).forEach(b=>b.hist.forEach(h=>(h.pics||[]).forEach(p=>all.push({id:b.id,p,added:h.added}))));
   all.sort((a,b)=>addedKey(b.added)-addedKey(a.added));
   GALLERY=all;let h=`<a class="back" href="#">‹ All bucks</a><div class="gtop"><h1>Gallery</h1><span class="count">${all.length} photos</span></div>`,cur="";
   all.forEach((x,i)=>{const l=addedLabel(x.added);if(l!==cur){if(cur)h+=`</div>`;h+=`<div class="day">${l}</div><div class="grid">`;cur=l;}
@@ -581,7 +582,8 @@ function harvested(){const L=window.HARVEST||[];
     h+=`<section class="hv" id="hv-${esc(x.id||"")}"><div class="hvhd"><span class="hvtag">TAGGED</span><span class="hvwho">${esc(x.hunter||"")}${x.date?` · ${esc(x.date.slice(0,5).replace(/^0/,""))}`:""}</span></div>
       <button class="hero" data-hv="${i}" aria-label="Open photo"><img src="img/${x.pics[0]}.jpg" alt="${esc(x.buck||"Harvested buck")}"></button>
       <h2 class="hvname">${esc(x.buck||"Not named")}</h2>
-      <div class="dbody hvrows">${rows}</div>${x.note?`<p class="hvnote">${esc(x.note)}</p>`:""}</section>`;});
+      <div class="dbody hvrows">${rows}</div>${x.note?`<p class="hvnote">${esc(x.note)}</p>`:""}${(()=>{const b=x.bid&&BUCKS.find(z=>z.id===x.bid);if(!b)return "";const cp=b.hist.flatMap(hh=>(hh.pics||[]).map(p=>({p,d:hh.date,t:hh.time,c:hh.cam})));if(!cp.length)return "";
+      return `<h3 class="hvcamh">On camera before harvest <small>${b.hist.length} sighting${b.hist.length===1?"":"s"}</small></h3><div class="grid hvcam">${cp.map((c,k)=>`<button class="tile" data-hvc="${i}:${k}"><img src="img/${c.p}.jpg" alt="${esc(x.buck)}" loading="lazy"><span>${esc((c.d||"").slice(0,5).replace(/^0/,""))} ${esc(c.t||"")}</span></button>`).join("")}</div>`;})()}</section>`;});
   $("v-harv").innerHTML=h;}
 
 // ---------- SUM: every sighting in one filterable grid ----------
@@ -689,6 +691,7 @@ document.addEventListener("click",e=>{
   const un=e.target.closest("[data-undo]");if(un){const x=LIVE.log[+un.dataset.undo];if(x)openEdit(x.field==="pts"?"pts":"name",x.id,x.from);return;}
   const pk=e.target.closest("[data-pick]");if(pk){const b=byId(VIEWID),p=pics(b)[+pk.dataset.pick];$("hero").dataset.i=pk.dataset.pick;$("hero").querySelector("img").src=`img/${p}.jpg`;document.querySelectorAll(".strip button").forEach(x=>x.classList.toggle("on",x===pk));return;}
   if(e.target.closest("#hero")){const b=byId(VIEWID);openViewer(pics(b).map(p=>({id:b.id,p})),+$("hero").dataset.i);return;}
+  const hc=e.target.closest("[data-hvc]");if(hc){const [a,k]=hc.dataset.hvc.split(":").map(Number);const x=(window.HARVEST||[])[a];const b=x&&BUCKS.find(z=>z.id===x.bid);if(b){const L=b.hist.flatMap(hh=>(hh.pics||[]).map(p=>({id:b.id,p,label:(x.buck||"")+" · "+(hh.date||"")+" "+(hh.time||"")})));openViewer(L,k);}return;}
   const hv=e.target.closest("[data-hv]");if(hv){const x=(window.HARVEST||[])[+hv.dataset.hv];if(x)openViewer(x.pics.map(p=>({id:x.id,p,label:(x.buck||"Harvested")+" · "+(x.hunter||"")})),0);return;}
   const t=e.target.closest("[data-g]");if(t){openViewer(GALLERY,+t.dataset.g);return;}
   const one=e.target.closest("[data-pick-one] button");if(one){const grp=one.parentElement.dataset.pickOne,was=one.classList.contains("on");
