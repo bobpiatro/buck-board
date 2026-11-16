@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141812">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Blind Scent · Buck Board 26</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{--bg:#141812;--panel:#1d231a;--ink:#e7eadf;--mute:#9aa38f;--acc:#f07a35;--line:#2f382a;--on:#5a8f3a;--oz:#b38cff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 'Source Sans 3',system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px)}
+.back{display:inline-flex;color:var(--acc);font-weight:600;font-size:1.05rem;padding:8px 2px 4px;text-decoration:none}
+.wrap{max-width:760px;margin:0 auto;padding:10px}
+h1{font:700 1.7rem 'Barlow Condensed','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;margin:4px 2px 8px}
+h1 span{display:block;color:var(--mute);font:400 13px 'Source Sans 3',system-ui,sans-serif;text-transform:none;letter-spacing:0}
+canvas{width:100%;aspect-ratio:1/1;display:block;background:#2b3121;border-radius:10px;touch-action:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:6px 2px 0}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.stat{background:var(--panel);border-radius:8px;padding:6px 8px;min-height:44px}
+.stat b{display:block;font-size:10.5px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.verdict{background:var(--panel);border-left:3px solid var(--acc);border-radius:8px;padding:8px 10px;margin:6px 0 10px}
+.group{background:var(--panel);border-radius:10px;padding:10px;margin-bottom:8px}
+.group h2{font-size:11.5px;text-transform:uppercase;color:var(--mute);margin:0 0 6px;letter-spacing:.6px}
+.row{display:flex;align-items:center;gap:8px;margin:7px 0}
+.row label{min-width:84px}
+input[type=range]{flex:1;accent-color:var(--acc);min-width:0}
+.val{min-width:64px;text-align:right;font-variant-numeric:tabular-nums}
+.wrow{margin:8px 0}
+.wrow .top{display:flex;justify-content:space-between;margin-bottom:4px}
+.flow{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.flow.in{color:#8fc7ff}.flow.out{color:#ffb066}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;background:transparent;color:var(--ink);border:0;padding:9px 0;font:inherit;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--on);color:#fff}
+.seg.oz button.on{background:#6b4fb3}
+.seg.dis{opacity:.35;pointer-events:none}
+.sub{font-size:12px;color:var(--mute);margin:8px 0 4px}
+.dirs{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:4px}
+.dirs button{background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 0;font:inherit;font-size:12px}
+.dirs button.on{background:var(--acc);color:#111;border-color:var(--acc)}
+.btns{display:flex;gap:6px}
+.btns button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit}
+.btns button.on{border-color:var(--acc);color:var(--acc)}
+.note{color:var(--mute);font-size:12px;margin:10px 2px 24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">‹ Buck Board</a>
+  <h1>Blind Scent <span>· top-down, north up</span></h1>
+  <canvas id="c"></canvas>
+  <div class="legend"><span><i style="background:#ff8c28"></i>your scent</span><span><i style="background:#b38cff"></i>ozone</span><span><i style="background:#8a8f84"></i>scent hit by ozone</span><span><i style="background:#e63c28"></i>untreated scent crossing ring</span></div>
+
+  <div class="stats">
+    <div class="stat"><b>Wind</b><span id="sWind"></span></div>
+    <div class="stat"><b>Air swaps in blind</b><span id="sAir"></span></div>
+    <div class="stat"><b id="sRingLbl">Scent crossing ring</b><span id="sScent"></span></div>
+    <div class="stat"><b>Ozone coverage at ring</b><span id="sOz"></span></div>
+  </div>
+  <div class="verdict" id="verdict"></div>
+
+  <div class="group">
+    <h2>Windows (you face NW)</h2>
+    <div id="winRows"></div>
+  </div>
+
+  <div class="group">
+    <h2>Ozonics</h2>
+    <div class="seg oz" id="ozOn"><button data-v="1">On</button><button data-v="0">Off</button></div>
+    <div class="sub">Mounted at</div>
+    <div class="seg oz" id="ozLoc"><button data-v="SE">Back window</button><button data-v="NW">Front window</button><button data-v="IN">Inside blind</button></div>
+    <div class="sub">Blowing</div>
+    <div class="seg oz" id="ozDir"><button data-v="in">Into blind</button><button data-v="out">Out of blind</button></div>
+    <div class="row"><label>Assumed kill</label><input id="iOzEff" type="range" min="0" max="100" step="5"><span class="val" id="vOzEff"></span></div>
+  </div>
+
+  <div class="group">
+    <h2>Wind</h2>
+    <div class="row"><label>Speed</label><input id="iSpeed" type="range" min="0" max="25" step="1"><span class="val" id="vSpeed"></span></div>
+    <div class="row"><label>From</label><input id="iFrom" type="range" min="0" max="359" step="1"><span class="val" id="vFrom"></span></div>
+    <div class="dirs" id="dirs"></div>
+    <div class="row"><label>Gustiness</label><input id="iGust" type="range" min="0" max="100" step="1"><span class="val" id="vGust"></span></div>
+  </div>
+
+  <div class="group">
+    <h2>Setup &amp; view</h2>
+    <div class="row"><label>Blind size</label><input id="iBlind" type="range" min="4" max="10" step="0.5"><span class="val" id="vBlind"></span></div>
+    <div class="row"><label>Map width</label><input id="iView" type="range" min="10" max="120" step="5"><span class="val" id="vView"></span></div>
+    <div class="row"><label>Scent ring</label><input id="iRing" type="range" min="5" max="60" step="5"><span class="val" id="vRing"></span></div>
+    <div class="btns">
+      <button id="bPause">Pause</button>
+      <button id="bClear">Clear</button>
+      <button id="bStreaks" class="on">Wind lines</button>
+    </div>
+  </div>
+
+  <p class="note">Simplified model: wind pressure on each wall drives air in and out of the open windows, and the Ozonics fan (~20 cfm) adds its own push. Outside, wind bends around the blind and leaves a swirling eddy behind it. Seams leak a little even when everything is shut. "Assumed kill" is how well ozone neutralizes scent it touches. Nobody has proven a real number for that, so the sim mainly shows <b>whether ozone and scent overlap</b>. It doesn't model terrain or thermals, which can override everything on calm mornings and evenings. Use it to compare setups, not as gospel.</p>
+</div>
+
+<script>
+(()=>{
+const D2R=Math.PI/180;
+const bv=b=>[Math.sin(b*D2R),Math.cos(b*D2R)];
+const NNE=bv(45),NNW=bv(315);
+const CD=0.6,MPH=1.4667,ROOF=6,FAN_Q=20/60,FAN_JET=4;
+const NAMES=['N','NE','E','SE','S','SW','W','NW'];
+const cname=b=>NAMES[Math.round((((b%360)+360)%360)/45)%8];
+const WALLS=[
+ {k:'SW',num:'1',n:'Window 1 · SW (left)',b:225,ax:'u',sg:-1,ww:40/12,wh:14/12},
+ {k:'NW',num:'2',n:'Window 2 · NW (front)',b:315,ax:'v',sg:1,ww:40/12,wh:14/12},
+ {k:'NE',num:'3',n:'Window 3 · NE (right)',b:45,ax:'u',sg:1,ww:40/12,wh:14/12},
+ {k:'SE',num:'4',n:'Window 4 · SE (back, 20×14 slider)',b:135,ax:'v',sg:-1,ww:20/12,wh:14/12,mo:0.5}];
+const WK={};WALLS.forEach(w=>WK[w.k]=w);
+
+const S={speed:8,from:225,gust:35,blind:6,view:50,ring:25,paused:false,streaks:true,
+  win:{SW:1,NW:1,NE:0,SE:0.25},oz:{on:1,loc:'SE',dir:'in',eff:60}};
+
+// ---------- physics helpers ----------
+function cpAt(th){
+  const T=[[0,.7],[30,.5],[60,0],[90,-.6],[120,-.5],[150,-.4],[180,-.35]];
+  for(let i=1;i<T.length;i++) if(th<=T[i][0]){const a=T[i-1],b=T[i];return a[1]+(b[1]-a[1])*(th-a[0])/(b[0]-a[0]);}
+  return -.35;
+}
+function angDiff(a,b){let d=(((a-b)%360)+360)%360;return d>180?360-d:d;}
+const gauss=()=>(Math.random()+Math.random()+Math.random()-1.5)*2;
+const clamp=(x,a,b)=>x<a?a:x>b?b:x;
+const ozInSE=()=>S.oz.on&&S.oz.loc==='SE';
+const openFrac=w=>(w.k==='SE'&&ozInSE())?4/20:S.win[w.k]*(w.mo||1); // slider opens half its length; Ozonics sits in a 4" crack
+
+let flows=null,srcs=[],curU=0,curFrom=225,curD=[0,1],T=0;
+
+function fanInfo(){ // where the fan pushes air: returns {w, q(+in)} or null
+  if(!S.oz.on||S.oz.loc==='IN')return null;
+  const w=WK[S.oz.loc];if(openFrac(w)<=0)return null;
+  return {w,q:S.oz.dir==='in'?FAN_Q:-FAN_Q};
+}
+// kinematic pressures (ft²/s²): p = ½U²Cp ; flow = Cd·A·sign·√(2|Δp|)
+function solveFlows(U,from){
+  const leakA=0.03,fan=fanInfo();
+  const items=WALLS.map(w=>{const frac=openFrac(w);
+    return {w,frac,cp:cpAt(angDiff(w.b,from)),pw:0.5*U*U*cpAt(angDiff(w.b,from)),A:w.ww*frac*w.wh+leakA};});
+  const qOf=(it,P)=>{const d=it.pw-P;return CD*it.A*Math.sign(d)*Math.sqrt(2*Math.abs(d));};
+  const f=P=>items.reduce((s,it)=>s+qOf(it,P),0)+(fan?fan.q:0);
+  const Atot=items.reduce((s,i)=>s+i.A,0);
+  const B=0.5*U*U+Math.pow(FAN_Q/(CD*Atot),2)+1;
+  let lo=-B,hi=B;
+  for(let i=0;i<50;i++){const m=(lo+hi)/2;if(f(m)>0)lo=m;else hi=m;}
+  const P=(lo+hi)/2;
+  items.forEach(it=>{const d=it.pw-P;it.vel=CD*Math.sign(d)*Math.sqrt(2*Math.abs(d));
+    let q=it.w.ww*it.frac*it.w.wh*it.vel;               // pressure-driven, ft³/s
+    if(fan&&fan.w===it.w)q+=fan.q;                       // fan pushes through same opening
+    it.q=q;it.cfm=q*60;});
+  return {P,items,fan};
+}
+function updateSources(){
+  const h=S.blind/2;srcs=[];
+  flows.items.forEach((it,i)=>{ if(it.frac<=0) return;
+    const n=bv(it.w.b),w=it.w.ww*it.frac;
+    const pulse=curU*w*0.18*(0.15+S.gust/100)*Math.sin(T*(1.3+i*0.71)+i*2.1);
+    srcs.push({x:n[0]*h,y:n[1]*h,q:it.q/it.w.wh+pulse,w});   // per unit height
+  });
+}
+function insideVel(x,y){
+  let vx=0,vy=0;
+  for(const s of srcs){const dx=x-s.x,dy=y-s.y;const r=Math.hypot(dx,dy)||1e-3;
+    const m=s.q/(Math.PI*Math.max(r,s.w/2));vx+=m*dx/r;vy+=m*dy/r;}
+  return [vx,vy];
+}
+function outsideVel(x,y){
+  const U=curU,d=curD,R=S.blind/2*1.15,R2=R*R;
+  const xl=x*d[0]+y*d[1], yl=-x*d[1]+y*d[0];
+  let r2=Math.max(xl*xl+yl*yl,R2);const r4=r2*r2;
+  let u=U*(1-R2*(xl*xl-yl*yl)/r4), v=-U*2*R2*xl*yl/r4, wake=0;
+  if(xl>0){const L=5*R,wd=R*(1+0.15*xl/R),a=1-Math.abs(yl)/wd,b=1-xl/L;
+    if(a>0&&b>0){wake=a*b;u=u*(1-wake)+wake*(-0.3*U);v=v*(1-wake)+wake*Math.sign(yl)*0.25*U*b;}}
+  return [u*d[0]-v*d[1],u*d[1]+v*d[0],wake];
+}
+const toBox=(x,y)=>[x*NNE[0]+y*NNE[1],x*NNW[0]+y*NNW[1]];
+const fromBox=(u,v)=>[u*NNE[0]+v*NNW[0],u*NNE[1]+v*NNW[1]];
+const wallFor=(ax,sg)=>WALLS.find(w=>w.ax===ax&&w.sg===sg);
+
+// ---------- particles ----------
+let P=[],O=[],tracers=[],bins=new Float32Array(36),ringHit=0,ringTreated=0,emitAcc=0,ozAcc=0;
+const MAX=9000,MAXO=4000,LIFE=90,OLIFE=60,CELL=1.5;
+function emit(n){for(let i=0;i<n;i++)P.push({x:gauss()*0.35,y:gauss()*0.35,out:false,age:0,tx:0,ty:0,tr:false});
+  if(P.length>MAX)P.splice(0,P.length-MAX);}
+function emitOzone(n){
+  const h=S.blind/2;
+  for(let i=0;i<n;i++){
+    let p;
+    if(S.oz.loc==='IN'){const n2=bv(135);p={x:n2[0]*h*0.6+gauss()*0.2,y:n2[1]*h*0.6+gauss()*0.2,out:false};}
+    else{const w=WK[S.oz.loc],nv=bv(w.b),t=[-nv[1],nv[0]],s=(Math.random()-0.5)*w.ww*Math.max(openFrac(w),0.25)*0.8;
+      const inward=S.oz.dir==='in';
+      const off=inward?-0.25:(openFrac(w)>0?0.3:0.3);
+      const outside=!inward;
+      p={x:nv[0]*(h+off)+t[0]*s,y:nv[1]*(h+off)+t[1]*s,out:outside};
+      if(outside){p.tx=nv[0]*FAN_JET*(0.7+Math.random()*0.6);p.ty=nv[1]*FAN_JET*(0.7+Math.random()*0.6);}
+    }
+    p.age=0;p.tx=p.tx||0;p.ty=p.ty||0;p.oz=true;O.push(p);}
+  if(O.length>MAXO)O.splice(0,O.length-MAXO);
+}
+function spawnTracer(t,anywhere){
+  const half=S.view*1.5;
+  if(anywhere){t.x=(Math.random()*2-1)*half;t.y=(Math.random()*2-1)*half;}
+  else{const l=[-curD[1],curD[0]],s=(Math.random()*2-1)*half*1.5;
+    t.x=-curD[0]*half*1.2+l[0]*s;t.y=-curD[1]*half*1.2+l[1]*s;}
+  t.age=0;t.life=6+Math.random()*6;
+}
+for(let i=0;i<220;i++){const t={};spawnTracer(t,true);tracers.push(t);}
+
+function stepParticle(p,dt){
+  const h=S.blind/2,ox=p.x,oy=p.y;
+  if(!p.out){
+    const v=insideVel(p.x,p.y);
+    const Din=0.25+0.05*curU*(S.gust/100+0.2)*(srcs.length?1:0.3)+(S.oz.on&&S.oz.loc==='IN'?0.4:0);
+    const s=Math.sqrt(2*Din*dt);
+    p.x+=v[0]*dt+s*gauss();p.y+=v[1]*dt+s*gauss();
+    let [u,vv]=toBox(p.x,p.y);
+    if(Math.abs(u)>h||Math.abs(vv)>h){
+      const useU=Math.abs(u)-h>Math.abs(vv)-h;
+      const c=useU?u:vv,sg=Math.sign(c),tan=useU?vv:u;
+      const w=wallFor(useU?'u':'v',sg),fr=openFrac(w);
+      if((fr>0&&Math.abs(tan)<w.ww*fr/2)||Math.random()<0.004){p.out=true;}
+      else{const cr=sg*(2*h-Math.abs(c));if(useU)u=cr;else vv=cr;
+        const q=fromBox(clamp(u,-h,h),clamp(vv,-h,h));p.x=q[0];p.y=q[1];}
+    }
+  }else{
+    const v=outsideVel(p.x,p.y);
+    const sig=Math.max(0.25,curU*(0.06+0.22*S.gust/100))*(1+v[2]*1.5),tau=1.5;
+    const k=sig*Math.sqrt(2*dt/tau);
+    p.tx+=-p.tx*dt/tau+k*gauss();p.ty+=-p.ty*dt/tau+k*gauss();
+    p.x+=(v[0]+p.tx)*dt;p.y+=(v[1]+p.ty)*dt;
+    let [u,vv]=toBox(p.x,p.y);
+    if(Math.abs(u)<h&&Math.abs(vv)<h){
+      const [pu,pv]=toBox(ox,oy);
+      const useU=Math.abs(pu)>=h,c=useU?pu:pv,sg=Math.sign(c),tan=useU?vv:u;
+      const w=wallFor(useU?'u':'v',sg),fr=openFrac(w);
+      const it=flows.items.find(i=>i.w===w);
+      if(fr>0&&Math.abs(tan)<w.ww*fr/2&&it.q>0){p.out=false;}
+      else{const cr=sg*(2*h-Math.abs(useU?u:vv));if(useU)u=cr;else vv=cr;const q=fromBox(u,vv);p.x=q[0];p.y=q[1];}
+    }
+    if(!p.oz){
+      const ringFt=S.ring*3,rb=Math.hypot(ox,oy),ra=Math.hypot(p.x,p.y);
+      if(rb<ringFt&&ra>=ringFt){ringHit++;if(p.tr)ringTreated++;
+        else{let b=(Math.atan2(p.x,p.y)/D2R+360)%360;bins[Math.floor(b/10)%36]+=1;}}
+    }
+  }
+  p.age+=dt;
+}
+
+// ozone contact: bin ozone into a grid, scent in an ozone cell may get neutralized
+const grid=new Map();
+function ozoneContact(dt){
+  if(!S.oz.on||!O.length)return;
+  grid.clear();
+  for(const o of O){const k=Math.floor(o.x/CELL)+','+Math.floor(o.y/CELL);grid.set(k,(grid.get(k)||0)+1);}
+  const kk=(S.oz.eff/100)*0.35;
+  for(const p of P){if(p.tr)continue;const n=grid.get(Math.floor(p.x/CELL)+','+Math.floor(p.y/CELL));
+    if(n&&Math.random()<1-Math.exp(-kk*n*dt))p.tr=true;}
+}
+
+function step(dt){
+  T+=dt;
+  const g=S.gust/100;
+  curFrom=S.from+g*28*(0.6*Math.sin(T*0.11)+0.4*Math.sin(T*0.29+1.3));
+  curU=Math.max(0,S.speed*MPH*(1+0.35*g*(0.6*Math.sin(T*0.7)+0.4*Math.sin(T*1.9+0.5))));
+  curD=bv(curFrom+180);
+  flows=solveFlows(curU,curFrom);updateSources();
+  emitAcc+=dt*220;let n=Math.floor(emitAcc);emitAcc-=n;emit(n);
+  if(S.oz.on){ozAcc+=dt*160;n=Math.floor(ozAcc);ozAcc-=n;emitOzone(n);}
+  const sub=2,sdt=dt/sub;
+  for(const p of P) for(let i=0;i<sub;i++) stepParticle(p,sdt);
+  for(const p of O) for(let i=0;i<sub;i++) stepParticle(p,sdt);
+  ozoneContact(dt);
+  const lim=S.view*1.5*1.6+30;
+  const keep=(p,life)=>Number.isFinite(p.x)&&Number.isFinite(p.y)&&!(p.age>life&&(p.out||p.oz))&&!(p.out&&(Math.abs(p.x)>lim||Math.abs(p.y)>lim));
+  P=P.filter(p=>keep(p,LIFE));O=O.filter(p=>keep(p,OLIFE));
+  const dec=Math.exp(-dt/6);for(let i=0;i<36;i++)bins[i]*=dec;ringHit*=dec;ringTreated*=dec;
+  const h=S.blind/2,half=S.view*1.5*1.05;
+  for(const t of tracers){
+    const v=outsideVel(t.x,t.y);
+    t.x+=(v[0]+gauss()*0.3)*dt;t.y+=(v[1]+gauss()*0.3)*dt;t.age+=dt;t.vx=v[0];t.vy=v[1];
+    const [u,vv]=toBox(t.x,t.y);
+    if(t.age>t.life||Math.abs(t.x)>half*1.3||Math.abs(t.y)>half*1.3||(Math.abs(u)<h&&Math.abs(vv)<h))spawnTracer(t,curU<0.5||Math.random()<0.5);
+  }
+}
+
+// ---------- drawing ----------
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W=380,DPR=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=cv.getBoundingClientRect().width||380;
+  cv.width=W*DPR;cv.height=W*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+new ResizeObserver(resize).observe(cv);resize();
+
+function arrow(x1,y1,x2,y2,col,lw,head){
+  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-head*Math.cos(a-0.45),y2-head*Math.sin(a-0.45));
+  ctx.lineTo(x2-head*Math.cos(a+0.45),y2-head*Math.sin(a+0.45));ctx.closePath();ctx.fill();
+}
+
+function drawBlind(ox,oy,sc,detail){
+  const h=S.blind/2,X=x=>ox+x*sc,Y=y=>oy-y*sc;
+  const cr=b=>{const v=bv(b);return [v[0]*h*Math.SQRT2,v[1]*h*Math.SQRT2];};
+  ctx.beginPath();[cr(0),cr(90),cr(180),cr(270)].forEach((p,i)=>i?ctx.lineTo(X(p[0]),Y(p[1])):ctx.moveTo(X(p[0]),Y(p[1])));ctx.closePath();
+  ctx.fillStyle=detail?'rgba(70,55,38,0.55)':'#5a4630';ctx.fill();
+  ctx.strokeStyle='#c9b48a';ctx.lineWidth=detail?4:Math.max(1.5,sc*0.25);ctx.stroke();
+  for(const w of WALLS){
+    const n=bv(w.b),t=[-n[1],n[0]],cx=n[0]*h,cy=n[1]*h,fr=openFrac(w);
+    if(detail){const L=w.ww/2;ctx.strokeStyle='rgba(150,170,190,0.55)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(X(cx-t[0]*L),Y(cy-t[1]*L));ctx.lineTo(X(cx+t[0]*L),Y(cy+t[1]*L));ctx.stroke();}
+    if(fr>0){const L=w.ww*fr/2;ctx.strokeStyle='#8fd0ff';ctx.lineWidth=detail?5:Math.max(2,sc*0.35);
+      ctx.beginPath();ctx.moveTo(X(cx-t[0]*L),Y(cy-t[1]*L));ctx.lineTo(X(cx+t[0]*L),Y(cy+t[1]*L));ctx.stroke();}
+    if(detail){
+      const lx=cx+n[0]*1.25,ly=cy+n[1]*1.25;
+      ctx.fillStyle='#ebe8da';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(w.num,X(lx),Y(ly));
+      const it=flows&&flows.items.find(i=>i.w===w);
+      if(it&&fr>0&&Math.abs(it.cfm)>8){
+        const sp=Math.abs(it.q)/(w.ww*fr*w.wh);
+        const len=clamp(sp*0.13,0.5,2.2),inn=it.q>0;
+        const a0=inn?[cx+n[0]*(len+0.35),cy+n[1]*(len+0.35)]:[cx-n[0]*0.6,cy-n[1]*0.6];
+        const a1=inn?[cx-n[0]*0.35,cy-n[1]*0.35]:[cx+n[0]*(len+0.1),cy+n[1]*(len+0.1)];
+        const off=[t[0]*0.75,t[1]*0.75];
+        arrow(X(a0[0]+off[0]),Y(a0[1]+off[1]),X(a1[0]+off[0]),Y(a1[1]+off[1]),inn?'#8fc7ff':'#ffb066',2.5,8);
+      }
+    }
+  }
+  // Ozonics unit
+  if(S.oz.on){
+    let ux,uy;
+    if(S.oz.loc==='IN'){const n2=bv(135);ux=n2[0]*h*0.6;uy=n2[1]*h*0.6;}
+    else{const n2=bv(WK[S.oz.loc].b);ux=n2[0]*h;uy=n2[1]*h;}
+    const r=Math.max(2.5,0.35*sc);ctx.fillStyle='#b38cff';ctx.strokeStyle='#1b1430';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.rect(X(ux)-r,Y(uy)-r,2*r,2*r);ctx.fill();ctx.stroke();
+    if(detail){ctx.fillStyle='#d9c8ff';ctx.font='10px system-ui';ctx.textAlign='center';ctx.textBaseline='top';
+      const n2=S.oz.loc==='IN'?[0,0]:bv(WK[S.oz.loc].b);
+      ctx.fillText('ozonics',X(ux-n2[0]*0.9),Y(uy-n2[1]*0.9)+2);}
+  }
+  // hunter facing NW
+  const f=bv(315);
+  if(detail){ctx.fillStyle='rgba(255,230,160,0.12)';ctx.beginPath();ctx.moveTo(X(0),Y(0));
+    const a1=bv(290),a2=bv(340);ctx.lineTo(X(a1[0]*h*1.3),Y(a1[1]*h*1.3));ctx.lineTo(X(a2[0]*h*1.3),Y(a2[1]*h*1.3));ctx.closePath();ctx.fill();}
+  ctx.fillStyle='#e9c46a';ctx.beginPath();ctx.arc(X(0),Y(0),Math.max(3,(detail?0.55:0.5)*sc),0,7);ctx.fill();
+  if(detail){ctx.fillStyle='#14170f';ctx.beginPath();ctx.arc(X(f[0]*0.3),Y(f[1]*0.3),Math.max(1.5,0.14*sc),0,7);ctx.fill();}
+}
+
+function drawParticles(ox,oy,sc,x0,y0,x1,y1,size){
+  for(const p of O){const sx=ox+p.x*sc,sy=oy-p.y*sc;if(sx<x0||sx>x1||sy<y0||sy>y1)continue;
+    const a=Math.max(0.08,0.55*Math.exp(-p.age/25));
+    ctx.fillStyle=`rgba(179,140,255,${a.toFixed(3)})`;ctx.fillRect(sx-size*0.4,sy-size*0.4,size*0.8,size*0.8);}
+  for(const p of P){const sx=ox+p.x*sc,sy=oy-p.y*sc;if(sx<x0||sx>x1||sy<y0||sy>y1)continue;
+    const a=p.out?Math.max(0.12,0.85*Math.exp(-p.age/40)):0.6;
+    ctx.fillStyle=p.tr?`rgba(140,145,132,${(a*0.7).toFixed(3)})`:`rgba(255,${p.out?140:175},40,${a.toFixed(3)})`;
+    ctx.fillRect(sx-size/2,sy-size/2,size,size);}
+}
+
+function draw(){
+  const cx=W/2,cy=W/2,sc=W/(S.view*3);
+  ctx.clearRect(0,0,W,W);ctx.fillStyle='#2b3121';ctx.fillRect(0,0,W,W);
+  const stepYd=S.view<=20?5:S.view<=60?10:25;
+  ctx.font='10px system-ui';ctx.textAlign='center';ctx.textBaseline='bottom';
+  for(let yd=stepYd;yd<=S.view;yd+=stepYd){const r=yd*3*sc;
+    ctx.strokeStyle='rgba(235,232,218,0.09)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.stroke();
+    ctx.fillStyle='rgba(235,232,218,0.35)';ctx.fillText(yd+' yd',cx,cy-r-1);}
+  if(S.streaks){ctx.lineWidth=1.2;for(const t of tracers){if(t.vx===undefined)continue;
+    const fa=Math.min(1,t.age/1)*Math.min(1,(t.life-t.age)/1);const sx=cx+t.x*sc,sy=cy-t.y*sc;
+    ctx.strokeStyle=`rgba(225,235,215,${(0.22*fa).toFixed(3)})`;ctx.beginPath();ctx.moveTo(sx,sy);
+    ctx.lineTo(sx-t.vx*0.35*sc,sy+t.vy*0.35*sc);ctx.stroke();}}
+  drawParticles(cx,cy,sc,0,0,W,W,2.6);
+  const rr=S.ring*3*sc;ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(224,138,46,0.55)';ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.arc(cx,cy,rr,0,7);ctx.stroke();ctx.setLineDash([]);
+  let mx=0;for(let i=0;i<36;i++)mx=Math.max(mx,bins[i]);
+  if(mx>1){ctx.lineWidth=7;for(let i=0;i<36;i++){const a=bins[i]/mx;if(a<0.05)continue;
+    const b0=(i*10-90)*D2R,b1=((i+1)*10-90)*D2R;ctx.strokeStyle=`rgba(230,60,40,${(0.85*a).toFixed(3)})`;
+    ctx.beginPath();ctx.arc(cx,cy,rr,b0,b1);ctx.stroke();}}
+  drawBlind(cx,cy,sc,false);
+  ctx.fillStyle='rgba(20,23,15,0.75)';ctx.beginPath();ctx.arc(W-24,24,16,0,7);ctx.fill();
+  arrow(W-24,34,W-24,13,'#ebe8da',2,6);ctx.font='bold 9px system-ui';ctx.fillStyle='#ebe8da';ctx.textBaseline='middle';ctx.fillText('N',W-24,41);
+  ctx.fillStyle='rgba(20,23,15,0.75)';ctx.beginPath();ctx.roundRect?ctx.roundRect(8,8,112,40,8):ctx.rect(8,8,112,40);ctx.fill();
+  const d=curD;arrow(28-d[0]*12,28+d[1]*12,28+d[0]*12,28-d[1]*12,'#9fd3ff',2.5,7);
+  ctx.textAlign='left';ctx.fillStyle='#ebe8da';ctx.font='bold 12px system-ui';ctx.fillText(`${S.speed} mph`,48,22);
+  ctx.font='11px system-ui';ctx.fillStyle='#9da48c';ctx.fillText(`from ${cname(S.from)}`,48,36);
+  const s=W*0.4,ix=W-s-8,iy=W-s-8,isc=s/(S.blind*2.3),icx=ix+s/2,icy=iy+s/2;
+  ctx.save();ctx.beginPath();ctx.rect(ix,iy,s,s);ctx.fillStyle='rgba(18,21,13,0.9)';ctx.fill();
+  ctx.strokeStyle='rgba(235,232,218,0.3)';ctx.lineWidth=1;ctx.stroke();ctx.clip();
+  drawParticles(icx,icy,isc,ix,iy,ix+s,iy+s,3);
+  drawBlind(icx,icy,isc,true);
+  ctx.fillStyle='rgba(235,232,218,0.55)';ctx.font='10px system-ui';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('close-up',ix+5,iy+4);
+  ctx.restore();
+}
+
+// ---------- stats / verdict ----------
+const $=id=>document.getElementById(id);
+function updateStats(){
+  if(!flows)return;
+  const dw=cname(S.from+180);
+  $('sWind').textContent=S.speed<1?'Calm':`${S.speed} mph from ${cname(S.from)} → toward ${dw}`;
+  const vol=S.blind*S.blind*ROOF;
+  const qin=flows.items.reduce((s,i)=>s+(i.q>0?i.cfm:0),0);
+  $('sAir').textContent=qin<5?'Almost none (stagnant)':`${(qin/vol).toFixed(1)}/min · ~${Math.round(vol/qin*60)} sec to flush`;
+  let C=0,Sn=0,tot=0;for(let i=0;i<36;i++){const b=(i*10+5)*D2R;C+=bins[i]*Math.cos(b);Sn+=bins[i]*Math.sin(b);tot+=bins[i];}
+  $('sRingLbl').textContent=`Untreated scent at ${S.ring} yd`;
+  if(tot<3)$('sScent').textContent=ringHit>3?'None: all treated':'Nothing reaching it yet';
+  else{const m=((Math.atan2(Sn,C)/D2R)+360)%360,R=Math.hypot(C,Sn)/tot,sp=Math.sqrt(-2*Math.log(Math.max(R,1e-3)))/D2R;
+    $('sScent').textContent=`Toward ${cname(m)} (${Math.round(m)}°) ±${Math.round(Math.min(sp,180))}°`;}
+  const cov=ringHit>3?ringTreated/ringHit:null;
+  $('sOz').textContent=!S.oz.on?'Ozonics off':cov===null?'Waiting for scent…':`${Math.round(cov*100)}% of scent hit by ozone`;
+  flows.items.forEach(it=>{const el=$('flow_'+it.w.k);if(!el)return;
+    if(it.frac<=0){el.textContent='closed';el.className='flow';return;}
+    const c=Math.round(Math.abs(it.cfm));
+    if(c<8){el.textContent='still / puffing';el.className='flow';}
+    else{el.textContent=(it.q>0?'IN ':'OUT ')+c+' cfm';el.className='flow '+(it.q>0?'in':'out');}});
+  const open=flows.items.filter(i=>i.frac>0);
+  const ins=open.filter(i=>i.cfm>8),outs=open.filter(i=>i.cfm<-8);
+  const nm=i=>'window '+i.w.num;
+  let v;
+  if(S.speed<1)v='Calm air: scent pools around the blind and creeps out every opening. Thermals and terrain will decide where it goes.';
+  else if(!open.length)v=`Sealed up: scent builds inside and seeps out the seams slowly, then drifts ${dw}.`;
+  else if(ins.length&&outs.length)v=`Air pushes in through ${ins.map(nm).join(' & ')} and out through ${outs.map(nm).join(' & ')}. The blind flushes every ~${Math.round(vol/Math.max(qin,1)*60)} sec, and the scent heads ${dw}.`;
+  else v=`No real through-flow: air mostly puffs in and out with gusts. Scent trickles out slowly and drifts ${dw}.`;
+  const windW=open.find(i=>i.cp>0.3);
+  if(windW&&outs.length)v+=` Window ${windW.w.num} faces into the wind; closing it kills most of the draft.`;
+  if(S.oz.on){
+    if(S.oz.loc!=='IN'&&openFrac(WK[S.oz.loc])<=0)v+=' The Ozonics window is closed, so the unit is only feeding ozone to one side of the wall.';
+    else if(cov!==null){
+      if(cov<0.35)v+=` Ozone is mostly missing your scent stream (${Math.round(cov*100)}% overlap). Try moving it to where the scent leaves.`;
+      else if(cov<0.7)v+=` Ozone overlaps part of your scent (${Math.round(cov*100)}%).`;
+      else v+=` Ozone is riding along with most of your scent (${Math.round(cov*100)}%).`;
+    }
+  }
+  $('verdict').textContent=v;
+}
+
+// ---------- UI ----------
+const wr=$('winRows');
+WALLS.forEach(w=>{
+  const d=document.createElement('div');d.className='wrow';
+  d.innerHTML=`<div class="top"><span>${w.n}</span><span class="flow" id="flow_${w.k}"></span></div>
+  <div class="sub" id="note_${w.k}" style="display:none"></div><div class="seg" id="seg_${w.k}">${[['Closed',0],['Cracked',0.25],['Half',0.5],['Full',1]].map(([l,v])=>`<button data-k="${w.k}" data-v="${v}">${l}</button>`).join('')}</div>`;
+  wr.appendChild(d);});
+wr.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.win[b.dataset.k]=+b.dataset.v;syncAll();});
+function segBind(id,get,set){const el=$(id);el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;set(b.dataset.v);syncAll();});
+  return ()=>el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',String(get())===b.dataset.v));}
+const segs=[
+  segBind('ozOn',()=>S.oz.on,v=>{S.oz.on=+v;if(!S.oz.on)O=[];}),
+  segBind('ozLoc',()=>S.oz.loc,v=>{S.oz.loc=v;if(v!=='IN'&&openFrac(WK[v])<=0)S.win[v]=0.25;}),
+  segBind('ozDir',()=>S.oz.dir,v=>{S.oz.dir=v;})];
+const dirs=$('dirs');NAMES.forEach((n,i)=>{const b=document.createElement('button');b.textContent=n;b.dataset.b=i*45;dirs.appendChild(b);});
+dirs.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.from=+b.dataset.b;syncAll();});
+function bind(id,get,set,fmt){const el=$(id);el.addEventListener('input',()=>{set(+el.value);syncAll();});return {el,get,fmt};}
+const binds=[
+  bind('iSpeed',()=>S.speed,v=>S.speed=v,v=>v+' mph'),
+  bind('iFrom',()=>S.from,v=>S.from=v,v=>cname(v)+' '+v+'°'),
+  bind('iGust',()=>S.gust,v=>S.gust=v,v=>v+'%'),
+  bind('iBlind',()=>S.blind,v=>S.blind=v,v=>v+' ft'),
+  bind('iView',()=>S.view,v=>S.view=v,v=>v+' yd'),
+  bind('iRing',()=>S.ring,v=>S.ring=v,v=>v+' yd'),
+  bind('iOzEff',()=>S.oz.eff,v=>S.oz.eff=v,v=>v+'%')];
+function syncAll(){
+  binds.forEach(b=>{b.el.value=b.get();$('v'+b.el.id.slice(1)).textContent=b.fmt(b.get());});
+  dirs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.b===S.from));
+  wr.querySelectorAll('button').forEach(b=>b.classList.toggle('on',S.win[b.dataset.k]==+b.dataset.v));
+  segs.forEach(f=>f());
+  const lock=ozInSE();$('seg_SE').classList.toggle('dis',lock);
+  if(lock)$('seg_SE').querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  $('note_SE').style.display=lock?'block':'none';$('note_SE').textContent='Set to a 4" × 14" crack with the Ozonics in it. Move the unit to change this window.';
+  $('ozLoc').classList.toggle('dis',!S.oz.on);
+  $('ozDir').classList.toggle('dis',!S.oz.on||S.oz.loc==='IN');
+}
+$('bPause').onclick=()=>{S.paused=!S.paused;$('bPause').textContent=S.paused?'Play':'Pause';$('bPause').classList.toggle('on',S.paused);};
+$('bClear').onclick=()=>{P=[];O=[];bins.fill(0);ringHit=ringTreated=0;};
+$('bStreaks').onclick=()=>{S.streaks=!S.streaks;$('bStreaks').classList.toggle('on',S.streaks);};
+syncAll();
+
+for(let i=0;i<300;i++)step(1/30);
+
+let last=performance.now(),statT=0;
+function loop(now){const dt=clamp((now-last)/1000,0,0.05);last=now;
+  if(!S.paused)step(dt);draw();statT+=dt;if(statT>0.25){statT=0;updateStats();}
+  requestAnimationFrame(loop);}
+updateStats();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
